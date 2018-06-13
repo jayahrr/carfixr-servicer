@@ -1,10 +1,10 @@
 const fbConfig = {
-  apiKey: 'AIzaSyA6a0Z-ze86Fz7EZzHo4B_6QfEADXTnQzE',
-  authDomain: 'carfixr-01.firebaseapp.com',
-  databaseURL: 'https://carfixr-01.firebaseio.com',
-  projectId: 'carfixr-01',
-  storageBucket: 'carfixr-01.appspot.com',
-  messagingSenderId: '845350539727',
+  apiKey: 'YOUR_DATA_HERE',
+  authDomain: 'YOUR_DATA_HERE',
+  databaseURL: 'YOUR_DATA_HERE',
+  projectId: 'YOUR_DATA_HERE',
+  storageBucket: 'YOUR_DATA_HERE',
+  messagingSenderId: 'YOUR_DATA_HERE',
 }
 
 export { fbConfig }
