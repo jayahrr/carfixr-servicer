@@ -1,23 +1,47 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-
-export default class App extends React.Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text>Open up App.js to start working on your app!</Text>
-        <Text>Changes you make will automatically reload.</Text>
-        <Text>Shake your phone to open the developer menu.</Text>
-      </View>
-    );
-  }
-}
+import React from 'react'
+import { StyleSheet, View, ActivityIndicator } from 'react-native'
+import { Provider } from 'react-redux'
+import firebase from 'firebase'
+import { store, fbConfig, colors } from './src/config/'
+import AppNavigation from './src/navigators/AppNavigation'
 
 const styles = StyleSheet.create({
-  container: {
+  loading: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
     justifyContent: 'center',
   },
-});
+})
+
+export default class App extends React.Component {
+  constructor() {
+    super()
+    this.state = {
+      authenticated: false,
+      loading: true,
+    }
+  }
+
+  componentWillMount() {
+    firebase.initializeApp(fbConfig)
+  }
+
+  componentDidMount() {
+    this.authSubscription = firebase.auth().onAuthStateChanged((user) => {
+      this.setState({
+        authenticated: !!user,
+        loading: !this.state.loading,
+      })
+    })
+  }
+
+  render() {
+    if (this.state.loading) {
+      return (
+        <View style={styles.loading}>
+          <ActivityIndicator size="large" color={colors.spot1} />
+        </View>
+      )
+    }
+    return <AppNavigation />
+  }
+}
