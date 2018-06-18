@@ -42,6 +42,10 @@ export default class App extends React.Component {
         </View>
       )
     }
-    return <AppNavigation />
+    return (
+      <Provider store={store}>
+        <AppNavigation />
+      </Provider>
+    )
   }
 }

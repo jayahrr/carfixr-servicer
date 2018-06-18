@@ -1,35 +1,23 @@
-import React, { Component } from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import React from 'react'
+import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
+import { View, StyleSheet } from 'react-native'
 import MapViewScreen from '../components/MapViewScreen'
-import DraawerMenuButton from '../components/DrawerMenuButton'
-import * as Theme from '../config/theme'
+import DrawerMenuButton from '../components/DrawerMenuButton'
 
-const styles = StyleSheet.create({
-  btnStyle: {
-    maxHeight: Theme.DEVICE_HEIGHT / 14,
-    minHeight: Theme.DEVICE_HEIGHT / 14,
-    width: Theme.DEVICE_WIDTH,
-    borderRadius: 0,
-    borderWidth: 0,
-    borderTopWidth: 1,
-    marginBottom: 0,
-    zIndex: 999,
-    marginLeft: 0,
-    backgroundColor: Theme.colors.spot4,
-  },
-})
+const HomeScreen = ({ navigation }) => (
+  <View style={StyleSheet.absoluteFill}>
+    <DrawerMenuButton navigation={navigation} />
+    <MapViewScreen />
+  </View>
+)
 
-class HomeScreen extends Component {
-  render() {
-    const { navigation } = this.props
-
-    return (
-      <View style={StyleSheet.absoluteFill}>
-        <MapViewScreen />
-        <DraawerMenuButton navigation={navigation} />
-      </View>
-    )
-  }
+HomeScreen.propTypes = {
+  navigation: PropTypes.objectOf(PropTypes.any).isRequired,
 }
 
-export default HomeScreen
+const mapStateToProps = state => ({
+  mapRegion: state.map.region,
+})
+
+export default connect(mapStateToProps)(HomeScreen)
