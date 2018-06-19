@@ -1,16 +1,37 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { View, StyleSheet } from 'react-native'
+import { StyleSheet } from 'react-native'
+import { Constants } from 'expo'
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { Container, View, Fab, Icon } from 'native-base'
 import MapViewScreen from '../components/MapViewScreen'
-import DrawerMenuButton from '../components/DrawerMenuButton'
+import * as Theme from '../config/theme'
+
+const drawerFabStyle = { zIndex: 101, left: Constants.statusBarHeight / 1.5 }
 
 const HomeScreen = ({ navigation }) => (
-  <View style={StyleSheet.absoluteFill}>
-    <DrawerMenuButton navigation={navigation} />
-    <MapViewScreen />
-  </View>
+  <Container>
+    <View style={StyleSheet.absoluteFill}>
+      <Fab
+        containerStyle={drawerFabStyle}
+        style={{ backgroundColor: Theme.colors.spot2 }}
+        position="topLeft"
+        onPress={() => {
+          navigation.toggleDrawer()
+        }}
+      >
+        <Icon name="ios-menu" />
+      </Fab>
+      <MapViewScreen />
+    </View>
+  </Container>
 )
+
+HomeScreen.navigationOptions = {
+  drawerLabel: 'Home',
+  drawerIcon: current => <Ionicons name="ios-home" size={30} color={current.tintColor} />,
+}
 
 HomeScreen.propTypes = {
   navigation: PropTypes.objectOf(PropTypes.any).isRequired,

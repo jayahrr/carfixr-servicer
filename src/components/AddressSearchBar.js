@@ -1,34 +1,35 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { View, StyleSheet, TouchableWithoutFeedback, TextInput } from 'react-native'
+import { StyleSheet } from 'react-native'
 import { Constants, Location } from 'expo'
-import Ionicons from '@expo/vector-icons/Ionicons'
+import { Item, Input, View, Button, Icon } from 'native-base'
 import * as Theme from '../config/theme'
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: Theme.borders.radius,
     flexDirection: 'row',
-    height: 50,
     position: 'absolute',
-    right: Constants.statusBarHeight / 2,
-    top: Constants.statusBarHeight * 1.5,
+    right: Constants.statusBarHeight / 1.5,
+    top: Constants.statusBarHeight,
     zIndex: 101,
   },
   btn: {
     alignItems: 'center',
-    backgroundColor: Theme.colors.spot4,
-    borderRadius: 52 / 2,
-    height: 52,
+    backgroundColor: Theme.colors.spot2,
+    borderRadius: 56 / 2,
+    elevation: 4,
+    height: 56,
     justifyContent: 'center',
-    width: 52,
+    shadowColor: Theme.colors.shadows,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 2,
+    width: 56,
   },
   inputStyle: {
-    color: Theme.colors.text.default,
     backgroundColor: Theme.colors.default,
     borderRadius: Theme.borders.radius,
-    width: Theme.DEVICE_WIDTH * 0.65,
-    paddingHorizontal: 10,
+    width: Theme.DEVICE_WIDTH * 0.6,
   },
 })
 
@@ -65,22 +66,22 @@ class AddressSearchBar extends Component {
     const { expanded, searchValue } = this.state
     return (
       <View style={styles.container}>
-        <View style={styles.btn}>
-          <TouchableWithoutFeedback onPress={this._toggleSearchBar}>
-            <Ionicons name="ios-search" color={Theme.colors.spot3} size={36} />
-          </TouchableWithoutFeedback>
-        </View>
+        <Button primary onPress={this._toggleSearchBar} style={styles.btn}>
+          <Icon name="ios-search" />
+        </Button>
         {expanded ? (
-          <TextInput
-            autoCorrect={false}
-            autoCapitalize="none"
-            clearButtonMode="always"
-            onChangeText={this._changeSearchValue}
-            onSubmitEditing={this._getAddressFromSearch}
-            placeholder="Where would you like to work?"
-            style={styles.inputStyle}
-            value={searchValue}
-          />
+          <Item regular style={styles.inputStyle}>
+            <Input
+              autoCorrect={false}
+              autoCapitalize="none"
+              clearButtonMode="always"
+              onChangeText={this._changeSearchValue}
+              onSubmitEditing={this._getAddressFromSearch}
+              placeholder="Where do you work?"
+              style={styles.inputStyle}
+              value={searchValue}
+            />
+          </Item>
         ) : null}
       </View>
     )
