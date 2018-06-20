@@ -1,37 +1,34 @@
 import React from 'react'
-import { StyleSheet, Text, View, SafeAreaView } from 'react-native'
 import { withNavigation } from 'react-navigation'
 import PropTypes from 'prop-types'
-import { Ionicons } from '@expo/vector-icons'
+import { Container, Content, Form, Item, Label, Input, Button, Text } from 'native-base'
+import { SafeAreaView } from 'react-native'
 import * as Theme from '../config/theme'
-import { Card, Footer, Logo, CardTitle } from '../components/common'
-
-const styles = StyleSheet.create({
-  contentContainer: {
-    borderWidth: 0,
-    height: Theme.DEVICE_HEIGHT / 2.4,
-    marginTop: -30,
-  },
-  icon: {
-    flex: 1,
-  },
-})
+import { Footer, Logo } from '../components/common'
 
 const SignInScreen = ({ navigation }) => (
   <SafeAreaView style={Theme.screens}>
-    <Logo />
-    <Card style={styles.contentContainer}>
-      <CardTitle title="SIGN IN" />
-      <Ionicons.Button
-        name="md-arrow-round-back"
-        size={28}
-        color={Theme.colors.text.primary}
-        backgroundColor={Theme.colors.default}
-        onPress={() => navigation.navigate({ routeName: 'SignUp' })}
-        style={styles.icon}
-      />
-    </Card>
-    <Footer />
+    <Container>
+      <Content>
+        <Logo />
+        <Form>
+          <Item floatingLabel>
+            <Label>Username</Label>
+            <Input />
+          </Item>
+          <Item floatingLabel last>
+            <Label>Password</Label>
+            <Input />
+          </Item>
+        </Form>
+
+        <Button block primary onPress={() => navigation.navigate({ routeName: 'HomeDrawer' })}>
+          <Text>Sign in</Text>
+        </Button>
+
+        <Footer />
+      </Content>
+    </Container>
   </SafeAreaView>
 )
 
