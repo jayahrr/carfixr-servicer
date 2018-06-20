@@ -1,24 +1,24 @@
-import React, { PureComponent } from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import {
   Container,
+  Icon,
   Header,
   Left,
   Body,
+  Title,
   Right,
   Button,
-  Icon,
-  Title,
   Content,
   Card,
   CardItem,
   Text,
 } from 'native-base'
 
-export default class WorkScreen extends PureComponent {
+class MessagesScreen extends Component {
   static navigationOptions = {
-    drawerLabel: 'Scheduled Work',
-    drawerIcon: ({ tintColor }) => <Icon name="ios-clock" size={30} color={tintColor} />,
+    drawerLabel: 'Messages',
+    drawerIcon: ({ tintColor }) => <Icon name="ios-chatbubbles" size={30} color={tintColor} />,
   }
 
   static propTypes = {
@@ -31,7 +31,7 @@ export default class WorkScreen extends PureComponent {
         <Header>
           <Left />
           <Body>
-            <Title>My Work</Title>
+            <Title>Messages</Title>
           </Body>
           <Right>
             <Button
@@ -48,7 +48,7 @@ export default class WorkScreen extends PureComponent {
         <Content>
           <Card>
             <CardItem header>
-              <Text>Did not find any work scheduled for you.</Text>
+              <Text>Did not find any messages for you.</Text>
             </CardItem>
             <CardItem footer>
               <Button
@@ -68,3 +68,5 @@ export default class WorkScreen extends PureComponent {
     )
   }
 }
+
+export default MessagesScreen

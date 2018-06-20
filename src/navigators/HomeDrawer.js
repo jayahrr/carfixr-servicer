@@ -2,6 +2,7 @@ import { createDrawerNavigator } from 'react-navigation'
 import HomeScreen from '../containers/HomeScreen'
 import WorkScreen from '../containers/WorkScreen'
 import ProfileScreen from '../containers/ProfileScreen'
+import MessagesScreen from '../containers/MessagesScreen'
 
 const HomeDrawer = createDrawerNavigator(
   {
@@ -10,6 +11,9 @@ const HomeDrawer = createDrawerNavigator(
     },
     Work: {
       screen: WorkScreen,
+    },
+    Messages: {
+      screen: MessagesScreen,
     },
     Profile: {
       screen: ProfileScreen,

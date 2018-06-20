@@ -9,7 +9,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     position: 'absolute',
-    right: Constants.statusBarHeight / 1.5,
+    left: Constants.statusBarHeight / 1.5,
     top: Constants.statusBarHeight,
     zIndex: 101,
   },

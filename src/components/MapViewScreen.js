@@ -29,7 +29,7 @@ class MapViewScreen extends Component {
     super(props)
     this.state = {
       initialRegion: null,
-      region: null,
+      // region: null,
     }
   }
 
@@ -83,10 +83,11 @@ class MapViewScreen extends Component {
             this._map = map
           }}
           customMapStyle={NightMapStyle}
+          followsUserLocation
           initialRegion={initialRegion}
           loadingEnabled
           onPress={Keyboard.dismiss}
-          onRegionChangeComplete={newRegion => this.setState({ region: newRegion })}
+          // onRegionChangeComplete={newRegion => this.setState({ region: newRegion })}
           provider={MapView.PROVIDER_GOOGLE}
           showsBuildings={false}
           showsCompass={false}
@@ -95,6 +96,7 @@ class MapViewScreen extends Component {
           showsPointsOfInterest={false}
           showsScale={false}
           showsTraffic={false}
+          showsUserLocation
           style={StyleSheet.absoluteFill}
         />
         <AddressSearchBar setMapRegion={this._setRegion} />

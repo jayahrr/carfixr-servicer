@@ -3,12 +3,11 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { StyleSheet } from 'react-native'
 import { Constants } from 'expo'
-import Ionicons from '@expo/vector-icons/Ionicons'
 import { Container, View, Fab, Icon } from 'native-base'
 import MapViewScreen from '../components/MapViewScreen'
 import * as Theme from '../config/theme'
 
-const drawerFabStyle = { zIndex: 101, left: Constants.statusBarHeight / 1.5 }
+const drawerFabStyle = { zIndex: 101, right: Constants.statusBarHeight / 1.5 }
 
 const HomeScreen = ({ navigation }) => (
   <Container>
@@ -16,7 +15,7 @@ const HomeScreen = ({ navigation }) => (
       <Fab
         containerStyle={drawerFabStyle}
         style={{ backgroundColor: Theme.colors.spot2 }}
-        position="topLeft"
+        position="topRight"
         onPress={() => {
           navigation.toggleDrawer()
         }}
@@ -30,7 +29,7 @@ const HomeScreen = ({ navigation }) => (
 
 HomeScreen.navigationOptions = {
   drawerLabel: 'Home',
-  drawerIcon: current => <Ionicons name="ios-home" size={30} color={current.tintColor} />,
+  drawerIcon: current => <Icon name="ios-home" size={30} color={current.tintColor} />,
 }
 
 HomeScreen.propTypes = {
