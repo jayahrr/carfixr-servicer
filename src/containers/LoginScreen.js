@@ -1,39 +1,61 @@
-import React from 'react'
-import { withNavigation } from 'react-navigation'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Container, Content, Form, Item, Label, Input, Button, Text } from 'native-base'
-import { SafeAreaView } from 'react-native'
-import * as Theme from '../config/theme'
+import { Container, Content, Header, Body, Title, Segment, Button, Text } from 'native-base'
+import { ScrollView } from 'react-native'
 import { Footer, Logo } from '../components/common'
+import AuthForm from '../components/AuthForm'
 
-const SignInScreen = ({ navigation }) => (
-  <SafeAreaView style={Theme.screens}>
-    <Container>
-      <Content>
-        <Logo />
-        <Form>
-          <Item floatingLabel>
-            <Label>Username</Label>
-            <Input />
-          </Item>
-          <Item floatingLabel last>
-            <Label>Password</Label>
-            <Input />
-          </Item>
-        </Form>
+class SignInScreen extends Component {
+  static propTypes = {
+    navigation: PropTypes.objectOf(PropTypes.any).isRequired,
+  }
 
-        <Button block primary onPress={() => navigation.navigate({ routeName: 'HomeDrawer' })}>
-          <Text>Sign in</Text>
-        </Button>
+  constructor() {
+    super()
+    this.state = {
+      active: true,
+    }
+  }
 
-        <Footer />
-      </Content>
-    </Container>
-  </SafeAreaView>
-)
+  _toggleSegment = (bool = undefined) => {
+    if (bool === undefined) this.setState({ active: !this.state.active })
+    else this.setState({ active: bool })
+  }
 
-SignInScreen.propTypes = {
-  navigation: PropTypes.objectOf(PropTypes.any).isRequired,
+  render() {
+    const { active } = this.state
+    return (
+      <ScrollView keyboardShouldPersistTaps="handled">
+        <Container>
+          <Header hasSegment>
+            <Body>
+              <Title>
+                <Logo />
+              </Title>
+            </Body>
+          </Header>
+
+          <Segment>
+            <Button first active={active} onPress={() => this._toggleSegment(true)}>
+              <Text>Sign in</Text>
+            </Button>
+            <Button last active={!active} onPress={() => this._toggleSegment(false)}>
+              <Text>Sign up</Text>
+            </Button>
+          </Segment>
+
+          <Content>
+            <AuthForm
+              navigation={this.props.navigation}
+              toggleSegment={this._toggleSegment}
+              {...this.state}
+            />
+            <Footer />
+          </Content>
+        </Container>
+      </ScrollView>
+    )
+  }
 }
 
-export default withNavigation(SignInScreen)
+export default SignInScreen

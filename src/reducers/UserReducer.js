@@ -3,6 +3,8 @@ import { USER_GEO_CHNG } from '../actions/types'
 const initialState = {
   geolocation: null,
   address: null,
+  id: null,
+  isLoggedIn: null,
 }
 
 export default (state = initialState, action) => {

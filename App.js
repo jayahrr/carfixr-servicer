@@ -35,13 +35,13 @@ export default class App extends React.Component {
   }
 
   render() {
-    if (this.state.loading) {
-      return (
-        <View style={styles.loading}>
-          <ActivityIndicator size="large" color={colors.spot1} />
-        </View>
-      )
-    }
+    // if (this.state.loading) {
+    //   return (
+    //     <View style={styles.loading}>
+    //       <ActivityIndicator size="large" color={colors.spot1} />
+    //     </View>
+    //   )
+    // }
     return (
       <Provider store={store}>
         <AppNavigation />
