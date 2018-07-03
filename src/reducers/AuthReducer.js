@@ -1,5 +1,6 @@
 import {
   USER_LOGIN_SUCCESS,
+  USER_LOGIN_STILL,
   USER_LOGIN_FAIL,
   USER_LOGOUT_SUCCESS,
   USER_LOGOUT_FAIL,
@@ -21,6 +22,12 @@ export default (state = INITIAL_STATE, action) => {
       return {
         ...state,
         ...INITIAL_STATE,
+        user: payload,
+        isLoggedIn: true,
+      }
+    case USER_LOGIN_STILL:
+      return {
+        ...state,
         user: payload,
         isLoggedIn: true,
       }

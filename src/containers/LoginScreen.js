@@ -8,12 +8,19 @@ import AuthForm from '../components/AuthForm'
 class SignInScreen extends Component {
   static propTypes = {
     navigation: PropTypes.objectOf(PropTypes.any).isRequired,
+    screenProps: PropTypes.objectOf(PropTypes.any).isRequired,
   }
 
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
     this.state = {
       active: true,
+    }
+  }
+
+  componentDidMount() {
+    if (this.props.screenProps.isLoggedIn) {
+      this.props.navigation.navigate({ routeName: 'HomeDrawer' })
     }
   }
 

@@ -4,6 +4,7 @@ import { Provider } from 'react-redux'
 import firebase from 'firebase'
 import { store, fbConfig, colors } from './src/config/'
 import AppNavigation from './src/navigators/AppNavigation'
+import { USER_LOGIN_STILL } from './src/actions/types'
 
 const styles = StyleSheet.create({
   loading: {
@@ -12,12 +13,12 @@ const styles = StyleSheet.create({
   },
 })
 
-export default class App extends React.Component {
+class App extends React.Component {
   constructor() {
     super()
     this.state = {
-      authenticated: false,
       loading: true,
+      isLoggedIn: false,
     }
   }
 
@@ -27,25 +28,32 @@ export default class App extends React.Component {
 
   componentDidMount() {
     this.authSubscription = firebase.auth().onAuthStateChanged((user) => {
+      console.log('user: ', user)
+      store.dispatch({
+        type: USER_LOGIN_STILL,
+        payload: user,
+      })
       this.setState({
-        authenticated: !!user,
         loading: !this.state.loading,
+        isLoggedIn: true,
       })
     })
   }
 
   render() {
-    // if (this.state.loading) {
-    //   return (
-    //     <View style={styles.loading}>
-    //       <ActivityIndicator size="large" color={colors.spot1} />
-    //     </View>
-    //   )
-    // }
+    if (this.state.loading) {
+      return (
+        <View style={styles.loading}>
+          <ActivityIndicator size="large" color={colors.spot1} />
+        </View>
+      )
+    }
     return (
       <Provider store={store}>
-        <AppNavigation />
+        <AppNavigation screenProps={{ isLoggedIn: this.state.isLoggedIn }} />
       </Provider>
     )
   }
 }
+
+export default App
