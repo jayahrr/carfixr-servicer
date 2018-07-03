@@ -29,14 +29,21 @@ class App extends React.Component {
   componentDidMount() {
     this.authSubscription = firebase.auth().onAuthStateChanged((user) => {
       console.log('user: ', user)
-      store.dispatch({
-        type: USER_LOGIN_STILL,
-        payload: user,
-      })
-      this.setState({
-        loading: !this.state.loading,
-        isLoggedIn: true,
-      })
+      if (!user) {
+        this.setState({
+          loading: false,
+          isLoggedIn: false,
+        })
+      } else {
+        store.dispatch({
+          type: USER_LOGIN_STILL,
+          payload: user,
+        })
+        this.setState({
+          loading: false,
+          isLoggedIn: true,
+        })
+      }
     })
   }
 

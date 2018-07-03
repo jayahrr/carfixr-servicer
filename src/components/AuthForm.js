@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Alert } from 'react-native'
-import { Item, Input, Content, Button, Text, View, Label, Spinner, Icon } from 'native-base'
+import { Item, Input, Content, Button, Text, View, Label, Spinner } from 'native-base'
 import { Field, reduxForm, propTypes } from 'redux-form'
 import { loginUser, createUser } from '../actions/AuthActions'
 
@@ -60,14 +60,21 @@ class AuthForm extends Component {
     const { navigation, toggleSegment, active } = this.props
     if (active) {
       const answer = await loginUser({ email, password, navigation })
+      console.log('answer: ', answer)
       this.setState({ fetching: false })
-      if (!answer.ok) {
+      if (answer.ok) {
+        this.props.reset()
+        navigation.navigate({ routeName: 'HomeDrawer' })
+      } else if (answer.error.code === 'auth/user-not-found') {
         Alert.alert('Your account was not found.', 'Would you like to create one?', [
           { text: 'OK', onPress: toggleSegment },
           { text: 'Cancel', onPress: () => false },
         ])
-      } else {
-        navigation.navigate({ routeName: 'HomeDrawer' })
+      } else if (answer.error.code === 'auth/wrong-password') {
+        Alert.alert('Wrong password!', '', [
+          { text: 'OK', onPress: () => false },
+          { text: 'Forgot my password', onPress: () => false },
+        ])
       }
     }
   }
@@ -83,7 +90,7 @@ class AuthForm extends Component {
         navigation.navigate({ routeName: 'HomeDrawer' })
       }
       if (answer.error && answer.error.code === 'auth/email-already-in-use') {
-        Alert.alert('An account with that email already exists.', 'Would you like to sign in?', [
+        Alert.alert('An account using that address already exists.', 'Would you like to sign in?', [
           { text: 'OK', onPress: toggleSegment },
           { text: 'Cancel', onPress: () => false },
         ])

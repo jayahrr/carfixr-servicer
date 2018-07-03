@@ -3,8 +3,6 @@ import {
   // USER_LOGIN_SUCCESS,
   // USER_LOGIN_FAIL,
   USER_LOGOUT,
-  USER_LOGOUT_SUCCESS,
-  USER_LOGOUT_FAIL,
 } from './types'
 // import { URI } from '../config'
 
@@ -63,9 +61,6 @@ const loginUser = async ({ email, password }) => {
 
   try {
     await firebase.auth().signInWithEmailAndPassword(email, password)
-    // const userData = await fetchUserData(email)
-    // console.log('userData: ', userData)
-    // loginUserSuccess(dispatch, userData)
     answer.ok = true
   } catch (error) {
     answer.error = error
@@ -74,23 +69,12 @@ const loginUser = async ({ email, password }) => {
   return answer
 }
 
-const logoutUserSuccess = (dispatch) => {
-  dispatch({ type: USER_LOGOUT_SUCCESS })
-}
-
-const logoutUserFail = (dispatch, e) => {
-  console.log(e)
-  dispatch({ type: USER_LOGOUT_FAIL })
-}
-
-const logoutUser = ({ navigation }) => (dispatch) => {
-  dispatch({ type: USER_LOGOUT })
-  firebase
-    .auth()
-    .signOut()
-    .then(() => logoutUserSuccess(dispatch))
-    .then(() => navigation.dispatch({ type: 'Logout' }))
-    .catch(e => logoutUserFail(dispatch, e))
+const logoutUser = async () => {
+  try {
+    await firebase.auth().signOut()
+  } catch (error) {
+    console.log('error: ', error)
+  }
 }
 
 const createUser = async ({
