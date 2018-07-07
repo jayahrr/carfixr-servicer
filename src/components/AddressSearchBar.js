@@ -55,7 +55,7 @@ class AddressSearchBar extends Component {
     this.setState({ searchValue })
   }
 
-  _getAddressFromSearch = async () => {
+  _getRegionFromSearchAddress = async () => {
     const coordsArr = await Location.geocodeAsync(this.state.searchValue)
     if (coordsArr.length) {
       this.setMapRegion('region', { coords: coordsArr[0] })
@@ -76,7 +76,7 @@ class AddressSearchBar extends Component {
               autoCapitalize="none"
               clearButtonMode="always"
               onChangeText={this._changeSearchValue}
-              onSubmitEditing={this._getAddressFromSearch}
+              onSubmitEditing={this._getRegionFromSearchAddress}
               placeholder="Where do you work?"
               style={styles.inputStyle}
               value={searchValue}

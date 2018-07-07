@@ -60,7 +60,6 @@ class AuthForm extends Component {
     const { navigation, toggleSegment, active } = this.props
     if (active) {
       const answer = await loginUser({ email, password, navigation })
-      console.log('answer: ', answer)
       this.setState({ fetching: false })
       if (answer.ok) {
         this.props.reset()

@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import { Keyboard, StyleSheet, Dimensions, View } from 'react-native'
+import { Keyboard, StyleSheet, Dimensions } from 'react-native'
+import { View } from 'native-base'
 import { MapView, Location, Permissions } from 'expo'
 import AddressSearchBar from '../components/AddressSearchBar'
 import NightMapStyle from '../config/MapStyles/NightMapStyle.json'
 import { MAP_REGN_CHNG } from '../actions/types'
+import { fetchRequestsNearMe } from '../actions/'
 
 // constants
 const { width, height } = Dimensions.get('window')
@@ -29,12 +31,17 @@ class MapViewScreen extends Component {
     super(props)
     this.state = {
       initialRegion: null,
-      // region: null,
+      region: null,
+      address: null,
+      markers: null,
     }
   }
 
   componentDidMount() {
-    this._getInitialDeviceLocation()
+    if (!this.state.initialRegion) {
+      this._getInitialDeviceLocation()
+    }
+
     Location.watchPositionAsync(GEOLOCATION_OPTIONS, (location) => {
       this._setRegion('region', location)
     })
@@ -57,25 +64,55 @@ class MapViewScreen extends Component {
     }
   }
 
-  _setRegion = (stateProp, location) => {
+  _setRegion = async (stateProp, location) => {
     // generate region object
-    const region = {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: LATITUDE_DELTA,
-      longitudeDelta: LONGITUDE_DELTA,
-    }
+    const region = location.coords
+      ? {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: LATITUDE_DELTA,
+        longitudeDelta: LONGITUDE_DELTA,
+      }
+      : location
+
+    const address = await this._getAddressFromLocation(region)
+    const markers = await fetchRequestsNearMe(region, 20000)
+
     // set the state property
-    this.setState({
-      [stateProp]: region,
-    })
-    this._map.animateToRegion(region)
-    return region
+    if (stateProp === 'initialRegion' && !this.state.region) {
+      this.setState({
+        initialRegion: region,
+        region,
+        address,
+        markers,
+      })
+      // move the map view to the region
+      this._map.animateToRegion(region)
+    } else {
+      this.setState({
+        [stateProp]: region,
+        address,
+        markers,
+      })
+    }
+  }
+
+  _getAddressFromLocation = async (location) => {
+    let addressResult
+    // acquire address from location data via google api
+    try {
+      addressResult = await Location.reverseGeocodeAsync(location)
+    } catch (error) {
+      // console.log('error: ', error)
+    }
+    return addressResult[0]
   }
 
   render() {
-    const { initialRegion } = this.state
+    const { initialRegion, address, markers } = this.state
     if (!initialRegion || initialRegion.latitude === undefined) return null
+    const markerTitle = address.name || 'My location'
+    const markerDescription = `${address.street} ${address.city}` || false
     return (
       <View style={StyleSheet.absoluteFill}>
         <MapView
@@ -87,7 +124,7 @@ class MapViewScreen extends Component {
           initialRegion={initialRegion}
           loadingEnabled
           onPress={Keyboard.dismiss}
-          // onRegionChangeComplete={newRegion => this.setState({ region: newRegion })}
+          onRegionChangeComplete={newRegion => this._setRegion('region', newRegion)}
           provider={MapView.PROVIDER_GOOGLE}
           showsBuildings={false}
           showsCompass={false}
@@ -98,7 +135,26 @@ class MapViewScreen extends Component {
           showsTraffic={false}
           showsUserLocation
           style={StyleSheet.absoluteFill}
-        />
+        >
+          <MapView.Marker
+            coordinate={this.state.region}
+            title={markerTitle}
+            description={markerDescription}
+          />
+          {markers
+            ? markers.map(marker => (
+              <MapView.Marker
+                key={marker.number}
+                coordinate={{
+                    latitude: marker.service_location.coordinates[1],
+                    longitude: marker.service_location.coordinates[0],
+                  }}
+                title={marker.number}
+                description={marker.description}
+              />
+              ))
+            : null}
+        </MapView>
         <AddressSearchBar setMapRegion={this._setRegion} />
       </View>
     )

@@ -8,6 +8,7 @@ const initialState = {
 
 export default (state = initialState, action) => {
   // console.log('state: ', state)
+  // console.log('action.type: ', action.type)
   // console.log('action.payload: ', action.payload)
 
   switch (action.type) {

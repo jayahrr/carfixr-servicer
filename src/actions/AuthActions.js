@@ -73,7 +73,7 @@ const logoutUser = async () => {
   try {
     await firebase.auth().signOut()
   } catch (error) {
-    console.log('error: ', error)
+    // console.log('error: ', error)
   }
 }
 

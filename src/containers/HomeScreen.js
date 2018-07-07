@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { StyleSheet } from 'react-native'
@@ -9,31 +9,36 @@ import * as Theme from '../config/theme'
 
 const drawerFabStyle = { zIndex: 101, right: Constants.statusBarHeight / 1.5 }
 
-const HomeScreen = ({ navigation }) => (
-  <Container>
-    <View style={StyleSheet.absoluteFill}>
-      <Fab
-        containerStyle={drawerFabStyle}
-        style={{ backgroundColor: Theme.colors.spot2 }}
-        position="topRight"
-        onPress={() => {
-          navigation.toggleDrawer()
-        }}
-      >
-        <Icon name="ios-menu" />
-      </Fab>
-      <MapViewScreen />
-    </View>
-  </Container>
-)
+class HomeScreen extends PureComponent {
+  static navigationOptions = {
+    drawerLabel: 'Home',
+    drawerIcon: current => <Icon name="ios-home" size={30} color={current.tintColor} />,
+  }
 
-HomeScreen.navigationOptions = {
-  drawerLabel: 'Home',
-  drawerIcon: current => <Icon name="ios-home" size={30} color={current.tintColor} />,
-}
+  static propTypes = {
+    navigation: PropTypes.objectOf(PropTypes.any).isRequired,
+  }
 
-HomeScreen.propTypes = {
-  navigation: PropTypes.objectOf(PropTypes.any).isRequired,
+  render() {
+    const { navigation } = this.props
+    return (
+      <Container>
+        <View style={StyleSheet.absoluteFill}>
+          <Fab
+            containerStyle={drawerFabStyle}
+            style={{ backgroundColor: Theme.colors.spot2 }}
+            position="topRight"
+            onPress={() => {
+              navigation.toggleDrawer()
+            }}
+          >
+            <Icon name="ios-menu" />
+          </Fab>
+          <MapViewScreen />
+        </View>
+      </Container>
+    )
+  }
 }
 
 const mapStateToProps = state => ({
