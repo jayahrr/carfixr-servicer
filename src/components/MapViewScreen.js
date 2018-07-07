@@ -34,6 +34,7 @@ class MapViewScreen extends Component {
       region: null,
       address: null,
       markers: null,
+      userLocation: null,
     }
   }
 
@@ -43,7 +44,7 @@ class MapViewScreen extends Component {
     }
 
     Location.watchPositionAsync(GEOLOCATION_OPTIONS, (location) => {
-      this._setRegion('region', location)
+      this.setState({ userLocation: location })
     })
   }
 
@@ -64,7 +65,7 @@ class MapViewScreen extends Component {
     }
   }
 
-  _setRegion = async (stateProp, location) => {
+  _setRegion = async (stateProp, location, animate = false) => {
     // generate region object
     const region = location.coords
       ? {
@@ -86,14 +87,17 @@ class MapViewScreen extends Component {
         address,
         markers,
       })
-      // move the map view to the region
-      this._map.animateToRegion(region)
     } else {
       this.setState({
         [stateProp]: region,
         address,
         markers,
       })
+    }
+
+    if (animate) {
+      // move the map view to the region
+      this._map.animateToRegion(region)
     }
   }
 
@@ -122,25 +126,20 @@ class MapViewScreen extends Component {
           customMapStyle={NightMapStyle}
           followsUserLocation
           initialRegion={initialRegion}
-          loadingEnabled
           onPress={Keyboard.dismiss}
           onRegionChangeComplete={newRegion => this._setRegion('region', newRegion)}
           provider={MapView.PROVIDER_GOOGLE}
           showsBuildings={false}
-          showsCompass={false}
           showsIndoors={false}
           showsMyLocationButton
-          showsPointsOfInterest={false}
-          showsScale={false}
-          showsTraffic={false}
           showsUserLocation
           style={StyleSheet.absoluteFill}
         >
-          <MapView.Marker
+          {/* <MapView.Marker
             coordinate={this.state.region}
             title={markerTitle}
             description={markerDescription}
-          />
+          /> */}
           {markers
             ? markers.map(marker => (
               <MapView.Marker
@@ -150,7 +149,7 @@ class MapViewScreen extends Component {
                     longitude: marker.service_location.coordinates[0],
                   }}
                 title={marker.number}
-                description={marker.description}
+                description={marker.short_description}
               />
               ))
             : null}
