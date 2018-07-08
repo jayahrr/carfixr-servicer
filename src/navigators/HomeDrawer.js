@@ -1,6 +1,6 @@
 import React from 'react'
 import { createDrawerNavigator } from 'react-navigation'
-import HomeScreen from '../containers/HomeScreen'
+import HomeScreenStack from '../navigators/HomeScreenStack'
 import WorkScreen from '../containers/WorkScreen'
 import ProfileScreen from '../containers/ProfileScreen'
 import MessagesScreen from '../containers/MessagesScreen'
@@ -9,7 +9,7 @@ import CustomDrawerContent from '../components/CustomDrawerContent'
 const HomeDrawer = createDrawerNavigator(
   {
     Home: {
-      screen: HomeScreen,
+      screen: HomeScreenStack,
     },
     Work: {
       screen: WorkScreen,

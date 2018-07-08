@@ -5,8 +5,9 @@ import { Keyboard, StyleSheet, Dimensions } from 'react-native'
 import { View } from 'native-base'
 import { MapView, Location, Permissions } from 'expo'
 import AddressSearchBar from '../components/AddressSearchBar'
+import RequestListButton from '../components/RequestListButton'
 import NightMapStyle from '../config/MapStyles/NightMapStyle.json'
-import { MAP_REGN_CHNG } from '../actions/types'
+import { MAP_REGN_CHNG, REQS_RECEIVE } from '../actions/types'
 import { fetchRequestsNearMe } from '../actions/'
 
 // constants
@@ -23,8 +24,9 @@ const GEOLOCATION_OPTIONS = {
 }
 
 class MapViewScreen extends Component {
-  static propType = {
+  static propTypes = {
     setRegion: PropTypes.func.isRequired,
+    setMarkers: PropTypes.func.isRequired,
   }
 
   constructor(props) {
@@ -77,7 +79,11 @@ class MapViewScreen extends Component {
       : location
 
     const address = await this._getAddressFromLocation(region)
-    const markers = await fetchRequestsNearMe(region, 20000)
+    const markers = await fetchRequestsNearMe(region, 20000).then((items) => {
+      if (!items) this.props.setMarkers([])
+      else this.props.setMarkers(items)
+      return items
+    })
 
     // set the state property
     if (stateProp === 'initialRegion' && !this.state.region) {
@@ -155,6 +161,7 @@ class MapViewScreen extends Component {
             : null}
         </MapView>
         <AddressSearchBar setMapRegion={this._setRegion} />
+        <RequestListButton />
       </View>
     )
   }
@@ -165,6 +172,11 @@ const mapDispatchToProps = dispatch => ({
     dispatch({
       type: MAP_REGN_CHNG,
       payload: region,
+    }),
+  setMarkers: markers =>
+    dispatch({
+      type: REQS_RECEIVE,
+      payload: markers,
     }),
 })
 

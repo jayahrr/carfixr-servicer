@@ -13,6 +13,7 @@ class HomeScreen extends PureComponent {
   static navigationOptions = {
     drawerLabel: 'Home',
     drawerIcon: current => <Icon name="ios-home" size={30} color={current.tintColor} />,
+    header: null,
   }
 
   static propTypes = {

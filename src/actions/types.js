@@ -11,3 +11,5 @@ export const USER_LOGOUT = 'user_logout'
 export const MAP_REGN_CHNG = 'map_regn_chng'
 export const MAP_ADDR_CHNG = 'map_addr_chng'
 export const MAP_REF_SAVE = 'map_ref_save'
+
+export const REQS_RECEIVE = 'reqs_receive'
