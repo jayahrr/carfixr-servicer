@@ -45,7 +45,7 @@ export default class WorkScreen extends PureComponent {
           </Right>
         </Header>
 
-        <Content>
+        <Content padder>
           <Card>
             <CardItem header>
               <Text>Did not find any work scheduled for you.</Text>
