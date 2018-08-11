@@ -1,56 +1,28 @@
 import firebase from 'firebase'
-import {
-  // USER_LOGIN_SUCCESS,
-  // USER_LOGIN_FAIL,
-  USER_LOGOUT,
-} from './types'
-// import { URI } from '../config'
+import URI from '../config/db'
 
-// const fetchUserData = (email) => {
-//   const URL = `${URI}/api/v1/customers/email/`
-//   const fetchConfig = {
-//     method: 'GET',
-//     headers: new Headers({ 'x-un': email }),
-//   }
+const fetchUserData = async (email) => {
+  const URL = `${URI}/api/v1/servicers/email/`
+  const fetchConfig = {
+    method: 'GET',
+    headers: new Headers({ 'x-un': email }),
+  }
 
-//   let userData = {}
+  let userData = null
 
-//   return fetch(URL, fetchConfig)
-//     .then((res) => {
-//       if (!res.ok) {
-//         throw new Error('API response was not ok.')
-//       }
-//       // console.log('userData is .....', userData)
-//       userData = JSON.parse(res._bodyText)
-//       return userData
-//     })
-//     .catch((e) => {
-//       throw new Error(e)
-//     })
-// }
+  try {
+    userData = await fetch(URL, fetchConfig).then((response) => {
+      if (!response.ok) {
+        throw new Error('API response was not ok.')
+      }
+      return response.json()
+    })
+  } catch (error) {
+    throw new Error('error: ', error)
+  }
 
-// const fetchUserDataASYNC = async (email) => {
-//   const URL = `${URI}/api/v1/customers/email/`
-//   const fetchConfig = {
-//     method: 'GET',
-//     headers: new Headers({ 'x-un': email }),
-//   }
-//   const response = await fetch(URL, fetchConfig)
-//   console.log('fetchUserDataASYNC response ......', response)
-//   if (!response.ok) throw new Error('API response was not ok.')
-//   return JSON.parse(response._bodyText)
-// }
-
-// const loginUserSuccess = (dispatch, userData) => {
-//   dispatch({
-//     type: USER_LOGIN_SUCCESS,
-//     payload: userData,
-//   })
-// }
-
-// const loginUserFail = (dispatch) => {
-//   dispatch({ type: USER_LOGIN_FAIL })
-// }
+  return userData
+}
 
 const loginUser = async ({ email, password }) => {
   const answer = {
@@ -99,4 +71,4 @@ const createUser = async ({
   return answer
 }
 
-export { /* fetchUserData, fetchUserDataASYNC, */ loginUser, logoutUser, createUser }
+export { fetchUserData, loginUser, logoutUser, createUser }

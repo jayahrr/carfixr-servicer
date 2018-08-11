@@ -4,7 +4,8 @@ import { Provider } from 'react-redux'
 import firebase from 'firebase'
 import { store, fbConfig, colors } from './src/config/'
 import AppNavigation from './src/navigators/AppNavigation'
-import { USER_LOGIN_STILL } from './src/actions/types'
+import { USER_LOGIN_STILL, USER_DATA } from './src/actions/types'
+import { fetchUserData } from './src/actions'
 
 const styles = StyleSheet.create({
   loading: {
@@ -34,13 +35,19 @@ class App extends React.Component {
           isLoggedIn: false,
         })
       } else {
-        store.dispatch({
-          type: USER_LOGIN_STILL,
-          payload: user,
-        })
-        this.setState({
-          loading: false,
-          isLoggedIn: true,
+        fetchUserData(user.email).then((response) => {
+          store.dispatch({
+            type: USER_LOGIN_STILL,
+            payload: user,
+          })
+          store.dispatch({
+            type: USER_DATA,
+            payload: response,
+          })
+          this.setState({
+            loading: false,
+            isLoggedIn: true,
+          })
         })
       }
     })

@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { Container, Content, Header, Body, Title, Segment, Button, Text } from 'native-base'
 import { ScrollView } from 'react-native'
 import { Footer, Logo } from '../components/common'
 import AuthForm from '../components/AuthForm'
+import { USER_DATA } from '../actions/types'
 
-class SignInScreen extends Component {
+class LoginScreen extends Component {
   static propTypes = {
     navigation: PropTypes.objectOf(PropTypes.any).isRequired,
     screenProps: PropTypes.objectOf(PropTypes.any).isRequired,
@@ -55,6 +57,7 @@ class SignInScreen extends Component {
             <AuthForm
               navigation={this.props.navigation}
               toggleSegment={this._toggleSegment}
+              setUserData={this.props.setUserData}
               {...this.state}
             />
             <Footer />
@@ -65,4 +68,17 @@ class SignInScreen extends Component {
   }
 }
 
-export default SignInScreen
+const mapDispatchToProps = dispatch => ({
+  setUserData: (userData) => {
+    console.log('setUserData userData: ', userData)
+    dispatch({
+      type: USER_DATA,
+      payload: userData,
+    })
+  },
+})
+
+export default connect(
+  null,
+  mapDispatchToProps,
+)(LoginScreen)

@@ -125,6 +125,8 @@ class MapViewScreen extends Component {
     const markerDescription = `${address.street} ${address.city}` || false
     return (
       <View style={StyleSheet.absoluteFill}>
+        <AddressSearchBar setMapRegion={this._setRegion} />
+        <RequestListButton />
         <MapView
           ref={(map) => {
             this._map = map
@@ -160,8 +162,6 @@ class MapViewScreen extends Component {
               ))
             : null}
         </MapView>
-        <AddressSearchBar setMapRegion={this._setRegion} />
-        <RequestListButton />
       </View>
     )
   }

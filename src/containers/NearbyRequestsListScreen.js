@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { withNavigation } from 'react-navigation'
-import { View, Text, Header, Left, Button, Icon, Right, Title, Body } from 'native-base'
+import { Header, Left, Button, Icon, Right, Title, Body, Container, Content } from 'native-base'
 import { NearbyRequestsList } from '../components/NearbyRequestsList'
 
 export const header = navigation => (
@@ -27,16 +27,28 @@ export class NearbyRequestsListScreen extends Component {
 
   render() {
     return (
-      <View>
-        <NearbyRequestsList requests={this.props.requests} />
-      </View>
+      <Container>
+        <Content padder>
+          <NearbyRequestsList {...this.props} />
+        </Content>
+      </Container>
     )
   }
 }
 
-const mapStateToProps = state => ({
-  requests: state.requests.items,
-})
+const mapStateToProps = (state) => {
+  console.log(state)
+  const requests = []
+  state.requests.items.forEach((item) => {
+    const request = {}
+    request.title = item.short_description
+    request.content = { ...item }
+    requests.push(request)
+  })
+  return {
+    requests,
+  }
+}
 
 const mapDispatchToProps = {}
 
