@@ -1,7 +1,8 @@
-import { REQS_RECEIVE } from '../actions/types'
+import { REQS_RECEIVE, REQS_MYWORK } from '../actions/types'
 
 const initialState = {
   items: null,
+  myWork: [],
 }
 
 export default (state = initialState, action) => {
@@ -11,6 +12,9 @@ export default (state = initialState, action) => {
   switch (action.type) {
     case REQS_RECEIVE:
       return { ...state, items: action.payload }
+
+    case REQS_MYWORK:
+      return { ...state, myWork: action.payload }
 
     default:
       return state

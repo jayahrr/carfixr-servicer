@@ -23,9 +23,11 @@ const fetchRequestsNearMe = async (region, radius) => {
   return requests
 }
 
-const servicerPickedUpRequest = async (id, update) => {
+const servicerUpdatedRequest = async (id, update) => {
   // generate REST URL
   const URL = `${URI}/api/v1/requests/${id}`
+
+  let response = null
 
   // generate config options
   const fetchConfig = {
@@ -38,15 +40,19 @@ const servicerPickedUpRequest = async (id, update) => {
 
   // fetch address from Google Maps APIs
   try {
-    const res = await fetch(URL, fetchConfig)
+    response = await fetch(URL, fetchConfig)
   } catch (error) {
     console.log('error: ', error)
   }
+
+  return response
 }
 
-const fetchRequestsAssignedToMe = async (id) => {
+const fetchRequestsAssignedToMe = async (servicerID) => {
   // generate REST URL
   const URL = `${URI}/api/v1/servicers/work/`
+
+  let requests = null
 
   // generate config options
   const fetchConfig = {
@@ -54,17 +60,18 @@ const fetchRequestsAssignedToMe = async (id) => {
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json; charset=utf-8',
-      'x-un': id,
+      'x-un': servicerID,
     },
   }
-  let requests = null
 
   try {
-    requests = await fetch(URL, fetchConfig).then((response) => {
-      console.log('fetchRequestsAssignedToMe response: ', response)
-      if (!response.ok) return null
-      return response.json()
-    })
+    const response = await fetch(URL, fetchConfig)
+    if (response.ok) {
+      const json = await response.json()
+      if (json.requests.length) {
+        requests = json.requests
+      }
+    }
   } catch (error) {
     throw new Error('error: ', error)
   }
@@ -72,4 +79,4 @@ const fetchRequestsAssignedToMe = async (id) => {
   return requests
 }
 
-export { fetchRequestsNearMe, servicerPickedUpRequest, fetchRequestsAssignedToMe }
+export { fetchRequestsNearMe, servicerUpdatedRequest, fetchRequestsAssignedToMe }

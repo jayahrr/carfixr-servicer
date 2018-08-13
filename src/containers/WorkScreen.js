@@ -1,21 +1,11 @@
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import {
-  Container,
-  Header,
-  Left,
-  Body,
-  Right,
-  Button,
-  Icon,
-  Title,
-  Content,
-  Card,
-  CardItem,
-  Text,
-} from 'native-base'
+import { Container, Header, Left, Body, Right, Button, Icon, Title, Content } from 'native-base'
+import { REQS_MYWORK } from '../actions/types'
 import { fetchRequestsAssignedToMe } from '../actions/'
+import WorkList from '../components/WorkList'
+import FindWorkButton from '../components/FindWorkButton'
 
 export class WorkScreen extends PureComponent {
   static navigationOptions = {
@@ -26,32 +16,37 @@ export class WorkScreen extends PureComponent {
   static propTypes = {
     navigation: PropTypes.objectOf(PropTypes.any).isRequired,
     userID: PropTypes.string.isRequired,
+    myWork: PropTypes.arrayOf(PropTypes.object).isRequired,
+    setMyWork: PropTypes.func.isRequired,
   }
 
   constructor(props) {
     super(props)
-    this.state = {
-      work: null,
-    }
-    this.openDrawer(() => {
+    this.openDrawer = () => {
       props.navigation.toggleDrawer()
-    })
-    this.goHome(() => {
-      props.navigation.navigate({ routeName: 'Home' })
-    })
+    }
+    this.fetchMyWork = async () => {
+      const response = await fetchRequestsAssignedToMe(props.userID)
+      const myWork = []
+      if (response && response.length) {
+        response.forEach((item) => {
+          const obj = {
+            title: item.short_description,
+            content: item,
+          }
+          myWork.push(obj)
+        })
+      }
+      props.setMyWork(myWork)
+    }
   }
 
   componentDidMount() {
-    fetchRequestsAssignedToMe(this.props.userID).then((response) => {
-      if (response !== null) {
-        this.setState({
-          work: response,
-        })
-      }
-    })
+    this.fetchMyWork()
   }
 
   render() {
+    const { navigation, myWork } = this.props
     return (
       <Container>
         <Header>
@@ -67,20 +62,10 @@ export class WorkScreen extends PureComponent {
         </Header>
 
         <Content padder>
-          {this.state.work != null ? (
-            <Text>Found some!</Text>
+          {myWork.length ? (
+            <WorkList myWork={myWork} fetchMyWork={this.fetchMyWork} />
           ) : (
-            <Card>
-              <CardItem header>
-                <Text>Did not find any work scheduled for you.</Text>
-              </CardItem>
-              <CardItem footer>
-                <Button iconRight primary onPress={() => this.goHome()}>
-                  <Text>Find work in my area</Text>
-                  <Icon name="ios-search" />
-                </Button>
-              </CardItem>
-            </Card>
+            <FindWorkButton navigation={navigation} />
           )}
         </Content>
       </Container>
@@ -90,6 +75,18 @@ export class WorkScreen extends PureComponent {
 
 const mapStateToProps = state => ({
   userID: state.user.db_data._id,
+  myWork: state.requests.myWork,
 })
 
-export default connect(mapStateToProps)(WorkScreen)
+const mapDispatchToProps = dispatch => ({
+  setMyWork: myWork =>
+    dispatch({
+      type: REQS_MYWORK,
+      payload: myWork,
+    }),
+})
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(WorkScreen)

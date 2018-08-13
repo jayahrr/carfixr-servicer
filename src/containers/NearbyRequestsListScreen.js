@@ -37,17 +37,16 @@ export class NearbyRequestsListScreen extends Component {
 }
 
 const mapStateToProps = (state) => {
-  console.log(state)
+  const userID = state.user.db_data._id
   const requests = []
   state.requests.items.forEach((item) => {
-    const request = {}
-    request.title = item.short_description
-    request.content = { ...item }
+    const request = {
+      title: item.short_description,
+      content: { ...item },
+    }
     requests.push(request)
   })
-  return {
-    requests,
-  }
+  return { requests, userID }
 }
 
 const mapDispatchToProps = {}

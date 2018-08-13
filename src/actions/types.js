@@ -14,3 +14,4 @@ export const MAP_ADDR_CHNG = 'map_addr_chng'
 export const MAP_REF_SAVE = 'map_ref_save'
 
 export const REQS_RECEIVE = 'reqs_receive'
+export const REQS_MYWORK = 'reqs_mywork'
