@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Button, Icon, Card, CardItem, Text } from 'native-base'
+import { withNavigation } from 'react-navigation';
 
 const FindWorkButton = ({ title, btnTitle, navigation }) => (
   <Card>
@@ -27,4 +28,4 @@ FindWorkButton.defaultProps = {
   btnTitle: 'Find work in my area',
 }
 
-export default FindWorkButton
+export default withNavigation(FindWorkButton)

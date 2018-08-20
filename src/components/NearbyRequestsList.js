@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { StyleSheet, Alert } from 'react-native'
-import { Text, Card, CardItem, Button, Icon, Accordion, View } from 'native-base'
+import { StyleSheet } from 'react-native'
+import { Text, Button, Accordion, View } from 'native-base'
 import * as Theme from '../config/theme'
-import { servicerUpdatedRequest } from '../actions'
+import FindWorkButton from '../components/FindWorkButton'
+import AssignRequestButton from '../components/AssignRequestButton'
 
 const styles = StyleSheet.create({
   contentStyle: {
@@ -21,52 +22,29 @@ export class NearbyRequestsList extends Component {
     userID: PropTypes.string.isRequired,
   }
 
-  _onPickUp = (id) => {
-    Alert.alert('Picking up a request.', 'Are you sure you want to complete this task?', [
-      {
-        text: 'Yes',
-        onPress: () => this._onAccept(id, { servicer_id: this.props.userID, state: 'Assigned' }),
-      },
-      { text: 'Cancel', onPress: () => false },
-    ])
+  _onView = (request) => {
+    this.props.navigation.navigate('RequestForm', { request, userID: this.props.userID })
   }
 
-  _onAccept = (id, update) => {
-    this.props.navigation.goBack()
-    servicerUpdatedRequest(id, update)
-  }
-
-  _renderContent = content => (
+  _renderContent = request => (
     <View style={styles.contentStyle}>
-      <Text>{content.number}</Text>
-      <Text>{content.state}</Text>
-      <Button small onPress={() => this._onPickUp(content._id)}>
-        <Text>Pick up</Text>
+      <Text>{request.number}</Text>
+      <Text>{request.state}</Text>
+      <AssignRequestButton requestID={request._id} action="pickup" />
+      <Button small onPress={() => this._onView(request)}>
+        <Text>View</Text>
       </Button>
     </View>
   )
 
   render() {
-    const { requests, navigation } = this.props
+    const { requests } = this.props
     if (!requests.length) {
       return (
-        <Card>
-          <CardItem header>
-            <Text>Did not find any work near you.</Text>
-          </CardItem>
-          <CardItem footer>
-            <Button
-              iconRight
-              primary
-              onPress={() => {
-                navigation.navigate({ routeName: 'Home' })
-              }}
-            >
-              <Text>Find work in another area</Text>
-              <Icon name="ios-search" />
-            </Button>
-          </CardItem>
-        </Card>
+        <FindWorkButton
+          title="Did not find any work near you."
+          btnTitle="Find work in another area"
+        />
       )
     }
     return (

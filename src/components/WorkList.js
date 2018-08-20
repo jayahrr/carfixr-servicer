@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { StyleSheet, Alert } from 'react-native'
-import { Text, Button, Accordion, View } from 'native-base'
+import { StyleSheet } from 'react-native'
+import { Text, Accordion, View, Button } from 'native-base'
 import * as Theme from '../config/theme'
-import { servicerUpdatedRequest } from '../actions'
+import AssignRequestButton from './AssignRequestButton'
 
 const styles = StyleSheet.create({
   contentStyle: {
@@ -17,40 +17,21 @@ const styles = StyleSheet.create({
 export default class WorkList extends Component {
   static propTypes = {
     myWork: PropTypes.arrayOf(PropTypes.object).isRequired,
-    fetchMyWork: PropTypes.func.isRequired,
+    navigation: PropTypes.objectOf(PropTypes.any).isRequired,
+    userID: PropTypes.string.isRequired,
   }
 
-  _onDrop = (id) => {
-    Alert.alert('Dropping a request.', 'Are you sure you want to drop this task?', [
-      {
-        text: 'Yes',
-        onPress: () => this._onAccept(id),
-      },
-      {
-        text: 'Cancel',
-        onPress: () => false,
-      },
-    ])
+  _onView = (request) => {
+    this.props.navigation.navigate('RequestForm', { request, userID: this.props.userID })
   }
 
-  _onAccept = (id) => {
-    servicerUpdatedRequest(id, {
-      servicer_id: null,
-      state: 'New',
-    }).then((response) => {
-      if (!response.ok) {
-        console.log('servicerUpdatedRequest response not ok', response)
-      }
-      this.props.fetchMyWork()
-    })
-  }
-
-  _renderContent = content => (
+  _renderContent = request => (
     <View style={styles.contentStyle}>
-      <Text>{content.number}</Text>
-      <Text>{content.state}</Text>
-      <Button small onPress={() => this._onDrop(content._id)}>
-        <Text>Drop</Text>
+      <Text>{request.number}</Text>
+      <Text>{request.state}</Text>
+      <AssignRequestButton requestID={request._id} action="drop" goBack={false} />
+      <Button small onPress={() => this._onView(request)}>
+        <Text>View</Text>
       </Button>
     </View>
   )

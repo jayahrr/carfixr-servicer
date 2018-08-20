@@ -2,8 +2,7 @@ import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { Container, Header, Left, Body, Right, Button, Icon, Title, Content } from 'native-base'
-import { REQS_MYWORK } from '../actions/types'
-import { fetchRequestsAssignedToMe } from '../actions/'
+import { fetchMyWork } from '../actions/'
 import WorkList from '../components/WorkList'
 import FindWorkButton from '../components/FindWorkButton'
 
@@ -17,7 +16,7 @@ export class WorkScreen extends PureComponent {
     navigation: PropTypes.objectOf(PropTypes.any).isRequired,
     userID: PropTypes.string.isRequired,
     myWork: PropTypes.arrayOf(PropTypes.object).isRequired,
-    setMyWork: PropTypes.func.isRequired,
+    fetchMyWork: PropTypes.func.isRequired,
   }
 
   constructor(props) {
@@ -25,28 +24,14 @@ export class WorkScreen extends PureComponent {
     this.openDrawer = () => {
       props.navigation.toggleDrawer()
     }
-    this.fetchMyWork = async () => {
-      const response = await fetchRequestsAssignedToMe(props.userID)
-      const myWork = []
-      if (response && response.length) {
-        response.forEach((item) => {
-          const obj = {
-            title: item.short_description,
-            content: item,
-          }
-          myWork.push(obj)
-        })
-      }
-      props.setMyWork(myWork)
-    }
+    this.fetchMyWork = this.props.fetchMyWork.bind(this)
   }
 
   componentDidMount() {
-    this.fetchMyWork()
+    this.fetchMyWork(this.props.userID)
   }
 
   render() {
-    const { navigation, myWork } = this.props
     return (
       <Container>
         <Header>
@@ -55,18 +40,14 @@ export class WorkScreen extends PureComponent {
             <Title>My Work</Title>
           </Body>
           <Right>
-            <Button transparent onPress={() => this.openDrawer()}>
+            <Button transparent onPress={this.openDrawer}>
               <Icon name="ios-menu" />
             </Button>
           </Right>
         </Header>
 
         <Content padder>
-          {myWork.length ? (
-            <WorkList myWork={myWork} fetchMyWork={this.fetchMyWork} />
-          ) : (
-            <FindWorkButton navigation={navigation} />
-          )}
+          {this.props.myWork.length ? <WorkList {...this.props} /> : <FindWorkButton />}
         </Content>
       </Container>
     )
@@ -79,11 +60,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  setMyWork: myWork =>
-    dispatch({
-      type: REQS_MYWORK,
-      payload: myWork,
-    }),
+  fetchMyWork: servicerID => dispatch(fetchMyWork(servicerID)),
 })
 
 export default connect(
