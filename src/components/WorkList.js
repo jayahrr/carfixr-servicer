@@ -27,10 +27,10 @@ export default class WorkList extends Component {
 
   _renderContent = request => (
     <View style={styles.contentStyle}>
-      <Text>{request.number}</Text>
-      <Text>{request.state}</Text>
-      <AssignRequestButton requestID={request._id} action="drop" goBack={false} />
-      <Button small onPress={() => this._onView(request)}>
+      <Text>{request.content.number}</Text>
+      <Text>{request.content.state}</Text>
+      <AssignRequestButton requestID={request.content._id} action="drop" goBack={false} />
+      <Button small onPress={() => this._onView(request.content)}>
         <Text>View</Text>
       </Button>
     </View>

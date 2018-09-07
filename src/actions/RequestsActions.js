@@ -20,7 +20,6 @@ const fetchRequestsNearMe = async (region, radius) => {
   } catch (error) {
     throw new Error('error: ', error)
   }
-
   return requests
 }
 
@@ -72,7 +71,6 @@ const fetchMyWork = servicerID => (dispatch) => {
   return fetch(URL, fetchConfig)
     .then(response => response.json())
     .then((json) => {
-      console.log('json: ', json)
       const myWork = []
       const reqs = json.requests
       if (reqs.length) {

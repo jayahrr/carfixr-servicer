@@ -1,11 +1,28 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import { Container, Content, Header, Body, Title, Segment, Button, Text } from 'native-base'
+import {
+  Container,
+  Content,
+  Header,
+  Body,
+  Title,
+  Segment,
+  Button,
+  Text,
+  Left,
+  Right,
+} from 'native-base'
 import { ScrollView } from 'react-native'
 import { Footer, Logo } from '../components/common'
 import AuthForm from '../components/AuthForm'
 import { USER_DATA } from '../actions/types'
+
+const styles = {
+  hdrStyle: {
+    alignItems: 'center',
+  },
+}
 
 class LoginScreen extends Component {
   static propTypes = {
@@ -36,30 +53,31 @@ class LoginScreen extends Component {
     return (
       <ScrollView keyboardShouldPersistTaps="handled">
         <Container>
-          <Header hasSegment>
-            <Body>
+          <Header hasSegment span>
+            <Left />
+            <Body style={styles.hdrStyle}>
               <Title>
                 <Logo />
               </Title>
             </Body>
+            <Right />
           </Header>
 
-          <Segment>
-            <Button first active={active} onPress={() => this._toggleSegment(true)}>
-              <Text>Sign in</Text>
-            </Button>
-            <Button last active={!active} onPress={() => this._toggleSegment(false)}>
-              <Text>Sign up</Text>
-            </Button>
-          </Segment>
-
-          <Content>
+          <Content padder>
             <AuthForm
               navigation={this.props.navigation}
               toggleSegment={this._toggleSegment}
               setUserData={this.props.setUserData}
               {...this.state}
             />
+            <Segment>
+              <Button first active={active} onPress={() => this._toggleSegment(true)}>
+                <Text>Sign in</Text>
+              </Button>
+              <Button last active={!active} onPress={() => this._toggleSegment(false)}>
+                <Text>Sign up</Text>
+              </Button>
+            </Segment>
             <Footer />
           </Content>
         </Container>

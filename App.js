@@ -2,9 +2,10 @@ import React from 'react'
 import { StyleSheet, View, ActivityIndicator } from 'react-native'
 import { Provider } from 'react-redux'
 import firebase from 'firebase'
+import Pusher from 'pusher-js/react-native'
 import { store, fbConfig, colors } from './src/config/'
 import AppNavigation from './src/navigators/AppNavigation'
-import { USER_LOGIN_STILL, USER_DATA } from './src/actions/types'
+import { USER_LOGIN_STILL, USER_DATA, REQS_RECEIVE, REQS_MYWORK } from './src/actions/types'
 import { fetchUserData } from './src/actions'
 
 const styles = StyleSheet.create({
@@ -13,6 +14,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 })
+
+// Enable pusher logging - don't include this in production
+Pusher.logToConsole = true
 
 class App extends React.Component {
   constructor() {
@@ -51,6 +55,66 @@ class App extends React.Component {
         })
       }
     })
+    this.pusher = new Pusher('cb51a4975819a45202cf', {
+      cluster: 'us2',
+      forceTLS: true,
+    })
+    this.channel = this.pusher.subscribe('Requests')
+    this.channel.bind('inserted', (data) => {
+      console.log('data: ', data)
+      this._addItemToStore(data)
+    })
+    this.channel.bind('updated', (data) => {
+      console.log('data: ', data)
+    })
+    this.channel.bind('deleted', data => this._removeItemFromStore(data))
+  }
+
+  _addItemToStore = (data) => {
+    let payload = []
+    const type = REQS_RECEIVE
+    const state = store.getState()
+    const reqsOld = store.getState().requests.items
+    const alreadyExists = reqsOld.find(req => req._id === data.id)
+    console.log('alreadyExists: ', alreadyExists)
+
+    if (!alreadyExists) {
+      if (reqsOld.length) payload = payload.concat(reqsOld)
+      payload.push(data.request)
+    }
+
+    console.log('payload: ', payload)
+    store.dispatch({ type, payload })
+  }
+
+  _removeItemFromStore = (data) => {
+    const state = store.getState()
+    const reqsOld = state.requests.items
+    const workOld = state.requests.myWork
+
+    if (workOld.length) {
+      const work = workOld.filter(req => req._id !== data)
+      console.log('work: ', work)
+
+      if (workOld.length !== work.length) {
+        store.dispatch({
+          type: REQS_MYWORK,
+          payload: work,
+        })
+      }
+    }
+
+    if (reqsOld.length) {
+      const reqs = reqsOld.filter(req => req._id !== data)
+      console.log('reqs: ', reqs)
+
+      if (reqsOld.length !== reqs.length) {
+        store.dispatch({
+          type: REQS_RECEIVE,
+          payload: reqs,
+        })
+      }
+    }
   }
 
   render() {

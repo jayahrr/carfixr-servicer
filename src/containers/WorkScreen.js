@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { Container, Header, Left, Body, Right, Button, Icon, Title, Content } from 'native-base'
 import { fetchMyWork } from '../actions/'
+import { REQS_MYWORK } from '../actions/types'
 import WorkList from '../components/WorkList'
 import FindWorkButton from '../components/FindWorkButton'
 
@@ -60,6 +61,11 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
+  setMyWork: myWork =>
+    dispatch({
+      type: REQS_MYWORK,
+      payload: myWork,
+    }),
   fetchMyWork: servicerID => dispatch(fetchMyWork(servicerID)),
 })
 

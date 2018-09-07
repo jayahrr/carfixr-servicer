@@ -125,7 +125,7 @@ class AuthForm extends Component {
 
     return (
       <View>
-        <Content padder>
+        <Content>
           <Field
             name="email"
             label="Email"

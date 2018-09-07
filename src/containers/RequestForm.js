@@ -18,7 +18,7 @@ export default class extends Component {
 
   render() {
     const {
-      short_description, number, state, _id,
+      short_description, number, state, _id, description,
     } = this.request
     return (
       <Container>
@@ -31,6 +31,7 @@ export default class extends Component {
               <Body>
                 <Text>{number}</Text>
                 <Text>{state}</Text>
+                <Text>{description}</Text>
                 {/* <Text>{`For ${this.request.requester.name}`}</Text> */}
               </Body>
             </CardItem>

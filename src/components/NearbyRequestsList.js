@@ -26,16 +26,19 @@ export class NearbyRequestsList extends Component {
     this.props.navigation.navigate('RequestForm', { request, userID: this.props.userID })
   }
 
-  _renderContent = request => (
-    <View style={styles.contentStyle}>
-      <Text>{request.number}</Text>
-      <Text>{request.state}</Text>
-      <AssignRequestButton requestID={request._id} action="pickup" />
-      <Button small onPress={() => this._onView(request)}>
-        <Text>View</Text>
-      </Button>
-    </View>
-  )
+  _renderContent = (request) => {
+    console.log('request: ', request)
+    return (
+      <View style={styles.contentStyle}>
+        <Text>{request.content.number}</Text>
+        <Text>{request.content.state}</Text>
+        <AssignRequestButton requestID={request.content._id} action="pickup" />
+        <Button small onPress={() => this._onView(request.content)}>
+          <Text>View</Text>
+        </Button>
+      </View>
+    )
+  }
 
   render() {
     const { requests } = this.props
