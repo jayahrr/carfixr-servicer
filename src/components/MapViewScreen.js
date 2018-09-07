@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import { Keyboard, StyleSheet, Dimensions } from 'react-native'
+import { Keyboard, StyleSheet, Dimensions, TouchableOpacity, Text } from 'react-native'
 import { View } from 'native-base'
 import { MapView, Location, Permissions } from 'expo'
 import AddressSearchBar from '../components/AddressSearchBar'
@@ -23,10 +23,25 @@ const GEOLOCATION_OPTIONS = {
   maximumAge: 1000,
 }
 
+const styles = StyleSheet.create({
+  plainView: {
+    // width: 60,
+  },
+  bubble: {
+    flex: 1,
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 20,
+  },
+})
+
 class MapViewScreen extends Component {
   static propTypes = {
     setRegion: PropTypes.func.isRequired,
     setMarkers: PropTypes.func.isRequired,
+    navigation: PropTypes.objectOf(PropTypes.any).isRequired,
+    userID: PropTypes.string.isRequired,
   }
 
   constructor(props) {
@@ -34,7 +49,6 @@ class MapViewScreen extends Component {
     this.state = {
       initialRegion: null,
       region: null,
-      address: null,
       markers: null,
       userLocation: null,
     }
@@ -118,11 +132,35 @@ class MapViewScreen extends Component {
     return addressResult[0]
   }
 
+  _openForm = (request) => {
+    this.props.navigation.navigate('RequestForm', { request, userID: this.props.userID })
+  }
+
+  _listMarkers = (markers = this.state.markers) => {
+    if (!markers) return null
+    return markers.map(marker => (
+      <MapView.Marker
+        key={marker._id}
+        identifier={marker._id}
+        coordinate={{
+          latitude: marker.service_location.coordinates[1],
+          longitude: marker.service_location.coordinates[0],
+        }}
+        stopPropagation
+      >
+        <MapView.Callout style={styles.plainView} onPress={() => this._openForm(marker)}>
+          <View style={[styles.bubble]}>
+            <Text>{marker.short_description}</Text>
+            <Text>{marker.number}</Text>
+          </View>
+        </MapView.Callout>
+      </MapView.Marker>
+    ))
+  }
+
   render() {
-    const { initialRegion, address, markers } = this.state
+    const { initialRegion } = this.state
     if (!initialRegion || initialRegion.latitude === undefined) return null
-    const markerTitle = address.name || 'My location'
-    const markerDescription = `${address.street} ${address.city}` || false
     return (
       <View style={StyleSheet.absoluteFill}>
         <AddressSearchBar setMapRegion={this._setRegion} />
@@ -131,36 +169,19 @@ class MapViewScreen extends Component {
           ref={(map) => {
             this._map = map
           }}
-          customMapStyle={NightMapStyle}
+          // customMapStyle={NightMapStyle}
           followsUserLocation
           initialRegion={initialRegion}
-          onPress={Keyboard.dismiss}
+          // onPress={Keyboard.dismiss}
           onRegionChangeComplete={newRegion => this._setRegion('region', newRegion)}
           provider={MapView.PROVIDER_GOOGLE}
           showsBuildings={false}
           showsIndoors={false}
           showsMyLocationButton
           showsUserLocation
-          style={StyleSheet.absoluteFill}
+          style={StyleSheet.absoluteFillObject}
         >
-          {/* <MapView.Marker
-            coordinate={this.state.region}
-            title={markerTitle}
-            description={markerDescription}
-          /> */}
-          {markers
-            ? markers.map(marker => (
-              <MapView.Marker
-                key={marker.number}
-                coordinate={{
-                    latitude: marker.service_location.coordinates[1],
-                    longitude: marker.service_location.coordinates[0],
-                  }}
-                title={marker.number}
-                description={marker.short_description}
-              />
-              ))
-            : null}
+          {this._listMarkers()}
         </MapView>
       </View>
     )

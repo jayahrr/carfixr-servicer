@@ -18,10 +18,11 @@ class HomeScreen extends PureComponent {
 
   static propTypes = {
     navigation: PropTypes.objectOf(PropTypes.any).isRequired,
+    userID: PropTypes.string.isRequired,
   }
 
   render() {
-    const { navigation } = this.props
+    const { navigation, userID } = this.props
     return (
       <Container>
         <View style={StyleSheet.absoluteFill}>
@@ -35,7 +36,7 @@ class HomeScreen extends PureComponent {
           >
             <Icon name="ios-menu" />
           </Fab>
-          <MapViewScreen />
+          <MapViewScreen navigation={navigation} userID={userID} />
         </View>
       </Container>
     )
@@ -44,6 +45,7 @@ class HomeScreen extends PureComponent {
 
 const mapStateToProps = state => ({
   mapRegion: state.map.region,
+  userID: state.user.db_data._id,
 })
 
 export default connect(mapStateToProps)(HomeScreen)
