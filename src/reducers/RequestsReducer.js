@@ -1,7 +1,7 @@
 import { REQS_RECEIVE, REQS_MYWORK } from '../actions/types'
 
 const initialState = {
-  items: null,
+  items: [],
   myWork: [],
 }
 

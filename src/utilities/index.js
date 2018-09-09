@@ -1,5 +1,20 @@
 import { Permissions, Location } from 'expo'
+import { Dimensions } from 'react-native'
+
 import { fbConfig } from '../config/firebase'
+
+// constants
+const { width, height } = Dimensions.get('window')
+
+const ASPECT_RATIO = width / height
+const LATITUDE_DELTA = 0.009
+const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO
+
+const GEOLOCATION_OPTIONS = {
+  enableHighAccuracy: true,
+  timeout: 20000,
+  maximumAge: 1000,
+}
 
 const getLocation = async () => {
   // check app permissions for location data
@@ -61,4 +76,17 @@ const getLocationFromAddress = async (address) => {
   return location
 }
 
-export { getAddressFromLocation, getLocationFromAddress, getLocation }
+const transformToRegion = (locationData) => {
+  let region = locationData
+  if (locationData.coords) {
+    region = {
+      latitude: locationData.coords.latitude,
+      longitude: locationData.coords.longitude,
+      latitudeDelta: LATITUDE_DELTA,
+      longitudeDelta: LONGITUDE_DELTA,
+    }
+  }
+  return region
+}
+
+export { getAddressFromLocation, getLocationFromAddress, getLocation, transformToRegion }

@@ -1,9 +1,17 @@
-import { MAP_REGN_CHNG, MAP_REF_SAVE } from '../actions/types'
+import {
+  MAP_REGN_CHNG,
+  MAP_REF_SAVE,
+  MAP_USR_LOC,
+  MAP_USR_ADDR,
+  MAP_REGN_ADDR,
+} from '../actions/types'
 
 const initialState = {
-  region: null,
+  region: {},
   address: null,
   ref: null,
+  userLocation: null,
+  userAddress: null,
 }
 
 export default (state = initialState, action) => {
@@ -14,8 +22,15 @@ export default (state = initialState, action) => {
   switch (action.type) {
     case MAP_REGN_CHNG:
       return { ...state, region: action.payload }
+    case MAP_REGN_ADDR:
+      return { ...state, address: action.payload }
     case MAP_REF_SAVE:
       return { ...state, ref: action.payload }
+    case MAP_USR_LOC:
+      return { ...state, userLocation: action.payload }
+    case MAP_USR_ADDR:
+      return { ...state, userAddress: action.payload }
+
     default:
       return state
   }

@@ -1,21 +1,15 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import { Keyboard, StyleSheet, Dimensions, TouchableOpacity, Text } from 'react-native'
+import { Keyboard, StyleSheet, Text } from 'react-native'
 import { View } from 'native-base'
-import { MapView, Location, Permissions } from 'expo'
+import { MapView, Location } from 'expo'
 import AddressSearchBar from '../components/AddressSearchBar'
 import RequestListButton from '../components/RequestListButton'
 import NightMapStyle from '../config/MapStyles/NightMapStyle.json'
-import { MAP_REGN_CHNG, REQS_RECEIVE } from '../actions/types'
-import { fetchRequestsNearMe } from '../actions/'
-
-// constants
-const { width, height } = Dimensions.get('window')
-
-const ASPECT_RATIO = width / height
-const LATITUDE_DELTA = 0.009
-const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO
+import { fetchRequestsNearby, setRegion, setUserLocation, setAddressFromRegion } from '../actions/'
+import { transformToRegion } from '../utilities/'
+import * as Theme from '../config/theme'
 
 const GEOLOCATION_OPTIONS = {
   enableHighAccuracy: true,
@@ -24,12 +18,9 @@ const GEOLOCATION_OPTIONS = {
 }
 
 const styles = StyleSheet.create({
-  plainView: {
-    // width: 60,
-  },
   bubble: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.7)',
+    backgroundColor: Theme.colors.spot3,
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderRadius: 20,
@@ -39,104 +30,60 @@ const styles = StyleSheet.create({
 class MapViewScreen extends Component {
   static propTypes = {
     setRegion: PropTypes.func.isRequired,
-    setMarkers: PropTypes.func.isRequired,
+    setUserLocation: PropTypes.func.isRequired,
+    fetchRequestsNearby: PropTypes.func.isRequired,
     navigation: PropTypes.objectOf(PropTypes.any).isRequired,
     userID: PropTypes.string.isRequired,
+    initialRegion: PropTypes.objectOf(PropTypes.any),
+    markers: PropTypes.arrayOf(PropTypes.object),
+    setAddressFromRegion: PropTypes.func.isRequired,
+  }
+
+  static defaultProps = {
+    initialRegion: null,
+    markers: [],
   }
 
   constructor(props) {
     super(props)
     this.state = {
-      initialRegion: null,
-      region: null,
-      markers: null,
-      userLocation: null,
+      address: '',
     }
   }
 
   componentDidMount() {
-    if (!this.state.initialRegion) {
-      this._getInitialDeviceLocation()
-    }
-
     Location.watchPositionAsync(GEOLOCATION_OPTIONS, (location) => {
-      this.setState({ userLocation: location })
+      this.props.setUserLocation(location)
+      this.props.setAddressFromRegion(location, 'user')
     })
   }
 
-  _getInitialDeviceLocation = async () => {
-    this._checkLocationPermissions()
-    // get current device location then set region to initialize map
-    const locationData = await Location.getCurrentPositionAsync({})
-    this._setRegion('initialRegion', locationData)
-  }
+  _setRegion = async (
+    location,
+    shouldDispatch = true,
+    shouldFetch = false,
+    shouldAnimate = false,
+  ) => {
+    const region = transformToRegion(location)
 
-  _checkLocationPermissions = async () => {
-    // check app permissions for location data access
-    const { status } = await Permissions.askAsync(Permissions.LOCATION)
-    if (status !== 'granted') {
-      this.setState({
-        // errorMessage: 'Permission to access location was denied',
-      })
+    if (shouldDispatch) {
+      this.props.setRegion(region)
+      this.props.setAddressFromRegion(region, 'region')
     }
-  }
-
-  _setRegion = async (stateProp, location, animate = false) => {
-    // generate region object
-    const region = location.coords
-      ? {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: LATITUDE_DELTA,
-        longitudeDelta: LONGITUDE_DELTA,
-      }
-      : location
-
-    const address = await this._getAddressFromLocation(region)
-    const markers = await fetchRequestsNearMe(region, 20000).then((items) => {
-      if (!items) this.props.setMarkers([])
-      else this.props.setMarkers(items)
-      return items
-    })
-
-    // set the state property
-    if (stateProp === 'initialRegion' && !this.state.region) {
-      this.setState({
-        initialRegion: region,
-        region,
-        address,
-        markers,
-      })
-    } else {
-      this.setState({
-        [stateProp]: region,
-        address,
-        markers,
-      })
+    if (shouldFetch) {
+      this.props.fetchRequestsNearby(region, 20000)
     }
-
-    if (animate) {
+    if (shouldAnimate) {
       // move the map view to the region
       this._map.animateToRegion(region)
     }
-  }
-
-  _getAddressFromLocation = async (location) => {
-    let addressResult
-    // acquire address from location data via google api
-    try {
-      addressResult = await Location.reverseGeocodeAsync(location)
-    } catch (error) {
-      // console.log('error: ', error)
-    }
-    return addressResult[0]
   }
 
   _openForm = (request) => {
     this.props.navigation.navigate('RequestForm', { request, userID: this.props.userID })
   }
 
-  _listMarkers = (markers = this.state.markers) => {
+  _listMarkers = (markers) => {
     if (!markers) return null
     return markers.map(marker => (
       <MapView.Marker
@@ -148,7 +95,7 @@ class MapViewScreen extends Component {
         }}
         stopPropagation
       >
-        <MapView.Callout style={styles.plainView} onPress={() => this._openForm(marker)}>
+        <MapView.Callout tooltip onPress={() => this._openForm(marker)}>
           <View style={[styles.bubble]}>
             <Text>{marker.short_description}</Text>
             <Text>{marker.number}</Text>
@@ -159,7 +106,7 @@ class MapViewScreen extends Component {
   }
 
   render() {
-    const { initialRegion } = this.state
+    const { initialRegion, markers } = this.props
     if (!initialRegion || initialRegion.latitude === undefined) return null
     return (
       <View style={StyleSheet.absoluteFill}>
@@ -169,11 +116,11 @@ class MapViewScreen extends Component {
           ref={(map) => {
             this._map = map
           }}
-          // customMapStyle={NightMapStyle}
+          customMapStyle={NightMapStyle}
           followsUserLocation
           initialRegion={initialRegion}
-          // onPress={Keyboard.dismiss}
-          onRegionChangeComplete={newRegion => this._setRegion('region', newRegion)}
+          onPress={Keyboard.dismiss}
+          onRegionChangeComplete={this._setRegion}
           provider={MapView.PROVIDER_GOOGLE}
           showsBuildings={false}
           showsIndoors={false}
@@ -181,27 +128,19 @@ class MapViewScreen extends Component {
           showsUserLocation
           style={StyleSheet.absoluteFillObject}
         >
-          {this._listMarkers()}
+          {this._listMarkers(markers)}
         </MapView>
       </View>
     )
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  setRegion: region =>
-    dispatch({
-      type: MAP_REGN_CHNG,
-      payload: region,
-    }),
-  setMarkers: markers =>
-    dispatch({
-      type: REQS_RECEIVE,
-      payload: markers,
-    }),
-})
-
 export default connect(
   null,
-  mapDispatchToProps,
+  {
+    fetchRequestsNearby,
+    setRegion,
+    setUserLocation,
+    setAddressFromRegion,
+  },
 )(MapViewScreen)

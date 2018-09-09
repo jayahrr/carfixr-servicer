@@ -14,8 +14,7 @@ const addListener = createReduxBoundAddListener('root')
 
 const store = createStore(
   Reducers,
-  {},
-  applyMiddleware(navMiddleWare, loggerMiddleware, thunkMiddleware),
+  applyMiddleware(thunkMiddleware, navMiddleWare, loggerMiddleware),
 )
 
 export { addListener, store }

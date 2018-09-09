@@ -1,7 +1,27 @@
 import URI from '../config/db'
-import { REQS_MYWORK } from '../actions/types'
+import { REQS_MYWORK, REQS_RECEIVE } from '../actions/types'
 
-const fetchRequestsNearMe = async (region, radius) => {
+/*
+ * actions
+ */
+const setServicesNearby = (dispatch, payload = []) =>
+  dispatch({
+    type: REQS_RECEIVE,
+    payload,
+  })
+
+const setMyWork = (dispatch, payload = []) =>
+  dispatch({
+    type: REQS_MYWORK,
+    payload,
+  })
+
+/*
+ * action creators
+ */
+
+const fetchRequestsNearby = (region, radius) => (dispatch) => {
+  // generate REST URL and config options
   const URL = `${URI}/api/v1/requests/nearby/${region.latitude}/${region.longitude}/${radius}`
   const fetchConfig = {
     method: 'GET',
@@ -10,55 +30,46 @@ const fetchRequestsNearMe = async (region, radius) => {
       'Content-Type': 'application/json',
     },
   }
-  let requests = null
 
-  try {
-    requests = await fetch(URL, fetchConfig).then((response) => {
-      if (!response.ok) return null
+  return fetch(URL, fetchConfig)
+    .then((response) => {
+      if (!response.ok) throw new Error('API response was not OK')
       return response.json()
     })
-  } catch (error) {
-    throw new Error('error: ', error)
-  }
-  return requests
+    .then((json) => {
+      setServicesNearby(dispatch, json)
+      return json
+    })
+    .catch((e) => {
+      throw new Error(e)
+    })
 }
 
-const fetchRequestsAssignedToMe = async (servicerID) => {
-  // generate REST URL
-  const URL = `${URI}/api/v1/servicers/work/`
-
-  let requests = null
-
-  // generate config options
+const updateService = (id, update) => (dispatch) => {
+  // generate REST URL and config options
+  const URL = `${URI}/api/v1/requests/${id}`
   const fetchConfig = {
-    method: 'GET',
+    method: 'POST',
     headers: {
-      Accept: 'application/json',
       'Content-Type': 'application/json; charset=utf-8',
-      'x-un': servicerID,
     },
+    body: JSON.stringify(update),
   }
 
-  try {
-    const response = await fetch(URL, fetchConfig)
-    if (response.ok) {
-      const json = await response.json()
-      if (json.requests.length) {
-        requests = json.requests
-      }
-    }
-  } catch (error) {
-    throw new Error('error: ', error)
-  }
-
-  return requests
+  return fetch(URL, fetchConfig)
+    .then((response) => {
+      if (!response.ok) throw new Error('API response was not OK')
+      return response.json()
+    })
+    .then(json => setServicesNearby(dispatch, json))
+    .catch((e) => {
+      throw new Error(e)
+    })
 }
 
 const fetchMyWork = servicerID => (dispatch) => {
-  // generate REST URL
+  // generate REST URL and config options
   const URL = `${URI}/api/v1/servicers/work/`
-
-  // generate config options
   const fetchConfig = {
     method: 'GET',
     headers: {
@@ -81,15 +92,15 @@ const fetchMyWork = servicerID => (dispatch) => {
           })
         })
       }
-      dispatch({
-        type: REQS_MYWORK,
-        payload: myWork,
-      })
+      return setMyWork(dispatch, myWork)
     })
-    .catch(e => console.error(e))
+    .catch((e) => {
+      throw new Error(e)
+    })
 }
 
-const servicerUpdatedRequest = (id, update) => {
+const servicerUpdatedRequest = async (id, update) => {
+  let answer
   // generate REST URL
   const URL = `${URI}/api/v1/requests/${id}`
 
@@ -102,9 +113,15 @@ const servicerUpdatedRequest = (id, update) => {
     body: JSON.stringify(update),
   }
 
-  return fetch(URL, fetchConfig)
-    .then(response => response.json())
-    .catch(e => console.error(e))
+  try {
+    const response = await fetch(URL, fetchConfig)
+    const json = await response.json()
+    answer = json || null
+  } catch (error) {
+    throw new Error(error)
+  }
+
+  return answer
 }
 
-export { fetchRequestsNearMe, servicerUpdatedRequest, fetchRequestsAssignedToMe, fetchMyWork }
+export { servicerUpdatedRequest, fetchMyWork, fetchRequestsNearby, updateService }

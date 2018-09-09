@@ -10,8 +10,11 @@ export const USER_LOGOUT_FAIL = 'user_logout_fail'
 export const USER_LOGOUT = 'user_logout'
 
 export const MAP_REGN_CHNG = 'map_regn_chng'
+export const MAP_REGN_ADDR = 'map_regn_addr'
 export const MAP_ADDR_CHNG = 'map_addr_chng'
 export const MAP_REF_SAVE = 'map_ref_save'
+export const MAP_USR_LOC = 'map_usr_loc'
+export const MAP_USR_ADDR = 'map_usr_addr'
 
 export const REQS_RECEIVE = 'reqs_receive'
 export const REQS_MYWORK = 'reqs_mywork'

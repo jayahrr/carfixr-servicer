@@ -39,13 +39,17 @@ export class NearbyRequestsListScreen extends Component {
 const mapStateToProps = (state) => {
   const userID = state.user.db_data._id
   const requests = []
-  state.requests.items.forEach((item) => {
-    const request = {
-      title: item.short_description,
-      content: { ...item },
-    }
-    requests.push(request)
-  })
+
+  if (state.requests.items.length) {
+    state.requests.items.forEach((item) => {
+      const request = {
+        title: item.short_description,
+        content: { ...item },
+      }
+      requests.push(request)
+    })
+  }
+
   return { requests, userID }
 }
 
