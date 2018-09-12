@@ -16,11 +16,6 @@ import {
 } from 'native-base'
 
 class MessagesScreen extends Component {
-  static navigationOptions = {
-    drawerLabel: 'Messages',
-    drawerIcon: ({ tintColor }) => <Icon name="ios-chatbubbles" size={30} color={tintColor} />,
-  }
-
   static propTypes = {
     navigation: PropTypes.objectOf(PropTypes.any).isRequired,
   }

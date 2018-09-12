@@ -5,6 +5,7 @@ import UserReducer from './UserReducer'
 import MapReducer from './MapReducer'
 import AuthReducer from './AuthReducer'
 import RequestsReducer from './RequestsReducer'
+import CatalogReducer from './CatalogReducer'
 
 const AppReducer = combineReducers({
   auth: AuthReducer,
@@ -13,6 +14,7 @@ const AppReducer = combineReducers({
   map: MapReducer,
   form: formReducer,
   requests: RequestsReducer,
+  catalog: CatalogReducer,
 })
 
 export default AppReducer

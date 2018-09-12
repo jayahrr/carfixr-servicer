@@ -8,11 +8,6 @@ import WorkList from '../components/WorkList'
 import FindWorkButton from '../components/FindWorkButton'
 
 export class WorkScreen extends PureComponent {
-  static navigationOptions = {
-    drawerLabel: 'Scheduled Work',
-    drawerIcon: ({ tintColor }) => <Icon name="ios-clock" size={30} color={tintColor} />,
-  }
-
   static propTypes = {
     navigation: PropTypes.objectOf(PropTypes.any).isRequired,
     userID: PropTypes.string.isRequired,

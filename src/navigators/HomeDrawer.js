@@ -1,24 +1,45 @@
 import React from 'react'
 import { createDrawerNavigator } from 'react-navigation'
+import { Icon } from 'native-base'
 import HomeScreenStack from '../navigators/HomeScreenStack'
 import WorkScreen from '../containers/WorkScreen'
-import ProfileScreen from '../containers/ProfileScreen'
 import MessagesScreen from '../containers/MessagesScreen'
 import CustomDrawerContent from '../components/CustomDrawerContent'
+import ProfileScreenStack from './ProfileScreenStack'
 
-const HomeDrawer = createDrawerNavigator(
+export default createDrawerNavigator(
   {
     Home: {
       screen: HomeScreenStack,
+      navigationOptions: {
+        drawerLabel: 'Home',
+        drawerIcon: ({ tintColor }) => (
+          <Icon ios="ios-home" android="md-home" size={30} color={tintColor} />
+        ),
+      },
     },
     Work: {
       screen: WorkScreen,
+      navigationOptions: {
+        drawerLabel: 'Messages',
+        drawerIcon: ({ tintColor }) => <Icon name="ios-chatbubbles" size={30} color={tintColor} />,
+      },
     },
     Messages: {
       screen: MessagesScreen,
+      navigationOptions: {
+        drawerLabel: 'Scheduled Work',
+        drawerIcon: ({ tintColor }) => <Icon name="ios-clock" size={30} color={tintColor} />,
+      },
     },
     Profile: {
-      screen: ProfileScreen,
+      screen: ProfileScreenStack,
+      navigationOptions: {
+        drawerLabel: 'My Account',
+        drawerIcon: ({ tintColor }) => (
+          <Icon ios="ios-person" android="md-person" size={30} color={tintColor} />
+        ),
+      },
     },
   },
   {
@@ -35,5 +56,3 @@ const HomeDrawer = createDrawerNavigator(
     },
   },
 )
-
-export default HomeDrawer

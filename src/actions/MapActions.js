@@ -54,24 +54,32 @@ export const setAddressFromRegion = (location, type = 'region') => (dispatch) =>
       } else {
         setRegionAddress(dispatch, address)
       }
+
+      return address
     })
     .catch((error) => {
       throw new Error(error)
     })
 }
 
-export const setServicerLocationInformation = location => (dispatch) => {
+export const setServicerLocationInformation = (location, userID) => (dispatch) => {
   const region = transformToRegion(location)
   // generate REST URL and config options
   const URL = `${URI}/api/v1/servicers/me/location`
-  const body = { current_location: region, current_address: '' }
+  const body = {
+    current_location: {
+      type: 'Point',
+      coordinates: [region.longitude, region.latitude],
+    },
+  }
   const fetchConfig = {
     method: 'POST',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
+      'x-un': userID,
     },
-    body: '{}',
+    // body: '{}',
   }
 
   return Location.reverseGeocodeAsync(region)
@@ -84,7 +92,7 @@ export const setServicerLocationInformation = location => (dispatch) => {
       setUserLocation(dispatch, region)
       setUserAddress(dispatch, body.current_address)
     })
-    .then(fetch(URL, fetchConfig))
+    .then(() => fetch(URL, fetchConfig))
     .catch((error) => {
       throw new Error(error)
     })

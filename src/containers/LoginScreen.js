@@ -16,7 +16,7 @@ import {
 import { ScrollView } from 'react-native'
 import { Footer, Logo } from '../components/common'
 import AuthForm from '../components/AuthForm'
-import { USER_DATA } from '../actions/types'
+import { USER_DB_DATA } from '../actions/types'
 
 const styles = {
   hdrStyle: {
@@ -90,7 +90,7 @@ const mapDispatchToProps = dispatch => ({
   setUserData: (userData) => {
     console.log('setUserData userData: ', userData)
     dispatch({
-      type: USER_DATA,
+      type: USER_DB_DATA,
       payload: userData,
     })
   },

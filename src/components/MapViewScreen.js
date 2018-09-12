@@ -51,7 +51,7 @@ class MapViewScreen extends Component {
 
   componentDidMount() {
     Location.watchPositionAsync(GEOLOCATION_OPTIONS, (location) => {
-      this.props.setServicerLocationInformation(location)
+      this.props.setServicerLocationInformation(location, this.props.userID)
     })
   }
 

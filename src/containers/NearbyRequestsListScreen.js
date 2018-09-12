@@ -4,7 +4,7 @@ import { withNavigation } from 'react-navigation'
 import { Header, Left, Button, Icon, Right, Title, Body, Container, Content } from 'native-base'
 import { NearbyRequestsList } from '../components/NearbyRequestsList'
 
-export const header = navigation => (
+const header = navigation => (
   <Header>
     <Left>
       <Button onPress={() => navigation.goBack()} transparent>
@@ -22,7 +22,7 @@ export const header = navigation => (
   </Header>
 )
 
-export class NearbyRequestsListScreen extends Component {
+class NearbyRequestsListScreen extends Component {
   static navigationOptions = ({ navigation }) => ({ header: header(navigation) })
 
   render() {
