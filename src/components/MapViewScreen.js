@@ -7,7 +7,12 @@ import { MapView, Location } from 'expo'
 import AddressSearchBar from '../components/AddressSearchBar'
 import RequestListButton from '../components/RequestListButton'
 import NightMapStyle from '../config/MapStyles/NightMapStyle.json'
-import { fetchRequestsNearby, setRegion, setUserLocation, setAddressFromRegion } from '../actions/'
+import {
+  fetchRequestsNearby,
+  setRegion,
+  setAddressFromRegion,
+  setServicerLocationInformation,
+} from '../actions/'
 import { transformToRegion } from '../utilities/'
 import * as Theme from '../config/theme'
 
@@ -30,7 +35,7 @@ const styles = StyleSheet.create({
 class MapViewScreen extends Component {
   static propTypes = {
     setRegion: PropTypes.func.isRequired,
-    setUserLocation: PropTypes.func.isRequired,
+    setServicerLocationInformation: PropTypes.func.isRequired,
     fetchRequestsNearby: PropTypes.func.isRequired,
     navigation: PropTypes.objectOf(PropTypes.any).isRequired,
     userID: PropTypes.string.isRequired,
@@ -44,17 +49,9 @@ class MapViewScreen extends Component {
     markers: [],
   }
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      address: '',
-    }
-  }
-
   componentDidMount() {
     Location.watchPositionAsync(GEOLOCATION_OPTIONS, (location) => {
-      this.props.setUserLocation(location)
-      this.props.setAddressFromRegion(location, 'user')
+      this.props.setServicerLocationInformation(location)
     })
   }
 
@@ -140,7 +137,7 @@ export default connect(
   {
     fetchRequestsNearby,
     setRegion,
-    setUserLocation,
     setAddressFromRegion,
+    setServicerLocationInformation,
   },
 )(MapViewScreen)

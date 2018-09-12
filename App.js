@@ -5,7 +5,7 @@ import firebase from 'firebase'
 import Pusher from 'pusher-js/react-native'
 import { store, fbConfig, colors } from './src/config/'
 import AppNavigation from './src/navigators/AppNavigation'
-import { USER_LOGIN_STILL, USER_DATA, REQS_RECEIVE, REQS_MYWORK } from './src/actions/types'
+import { USER_LOGIN_STILL, USER_DB_DATA, REQS_RECEIVE, REQS_MYWORK } from './src/actions/types'
 import { fetchUserData } from './src/actions'
 
 const styles = StyleSheet.create({
@@ -45,7 +45,7 @@ class App extends React.Component {
             payload: user,
           })
           store.dispatch({
-            type: USER_DATA,
+            type: USER_DB_DATA,
             payload: response,
           })
           this.setState({

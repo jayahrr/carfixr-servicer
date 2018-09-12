@@ -1,6 +1,6 @@
 export const USER_GEOL_CHNG = 'user_geol_chng'
 export const USER_ADDR_CHNG = 'user_addr_chng'
-export const USER_DATA = 'user_data'
+export const USER_DB_DATA = 'USER_DB_DATA'
 export const USER_LOGIN_SUCCESS = 'user_login_success'
 export const USER_LOGIN_FAIL = 'user_login_fail'
 export const USER_LOGIN = 'user_login'
