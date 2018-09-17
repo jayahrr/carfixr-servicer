@@ -21,21 +21,21 @@ export default createDrawerNavigator(
     Work: {
       screen: WorkScreen,
       navigationOptions: {
-        drawerLabel: 'Messages',
-        drawerIcon: ({ tintColor }) => <Icon name="ios-chatbubbles" size={30} color={tintColor} />,
+        drawerLabel: 'Work',
+        drawerIcon: ({ tintColor }) => <Icon name="ios-clock" size={30} color={tintColor} />,
       },
     },
     Messages: {
       screen: MessagesScreen,
       navigationOptions: {
-        drawerLabel: 'Scheduled Work',
-        drawerIcon: ({ tintColor }) => <Icon name="ios-clock" size={30} color={tintColor} />,
+        drawerLabel: 'Messages',
+        drawerIcon: ({ tintColor }) => <Icon name="ios-chatbubbles" size={30} color={tintColor} />,
       },
     },
     Profile: {
       screen: ProfileScreenStack,
       navigationOptions: {
-        drawerLabel: 'My Account',
+        drawerLabel: 'Account',
         drawerIcon: ({ tintColor }) => (
           <Icon ios="ios-person" android="md-person" size={30} color={tintColor} />
         ),

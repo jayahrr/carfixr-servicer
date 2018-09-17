@@ -6,6 +6,7 @@ import { fetchMyWork } from '../actions/'
 import { REQS_MYWORK } from '../actions/types'
 import WorkList from '../components/WorkList'
 import FindWorkButton from '../components/FindWorkButton'
+import RequestFormModal from '../components/RequestFormModal'
 
 export class WorkScreen extends PureComponent {
   static propTypes = {
@@ -21,10 +22,39 @@ export class WorkScreen extends PureComponent {
       props.navigation.toggleDrawer()
     }
     this.fetchMyWork = this.props.fetchMyWork.bind(this)
+    this.state = {
+      modalVisible: false,
+    }
   }
 
   componentDidMount() {
     this.fetchMyWork(this.props.userID)
+  }
+
+  toggleModal = (modalVisible, request) => {
+    this.setState({ modalVisible })
+    this.modalReq = request
+    this.enableReqForm = modalVisible
+  }
+
+  showContent = () => {
+    if (this.props.myWork.length !== 0) {
+      return <WorkList {...this.props} toggleModal={this.toggleModal} />
+    }
+    return <FindWorkButton />
+  }
+
+  renderReqForm = () => {
+    if (!this.enableReqForm) return null
+    return (
+      <RequestFormModal
+        visible={this.state.modalVisible}
+        userID={this.props.userID}
+        toggleModal={this.toggleModal}
+        request={this.modalReq}
+        navigation={this.props.navigation}
+      />
+    )
   }
 
   render() {
@@ -42,9 +72,9 @@ export class WorkScreen extends PureComponent {
           </Right>
         </Header>
 
-        <Content padder>
-          {this.props.myWork.length ? <WorkList {...this.props} /> : <FindWorkButton />}
-        </Content>
+        <Content padder>{this.showContent()}</Content>
+
+        {this.renderReqForm()}
       </Container>
     )
   }

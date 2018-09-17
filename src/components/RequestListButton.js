@@ -37,7 +37,7 @@ const RequestListButton = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Button primary onPress={_onPress} style={styles.btn}>
-        <Icon name="md-list" />
+        <Icon ios="ios-pin" name="md-pin" />
       </Button>
     </View>
   )

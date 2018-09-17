@@ -8,6 +8,7 @@ import MapViewScreen from '../components/MapViewScreen'
 import * as Theme from '../config/theme'
 import { setRegion, fetchRequestsNearby } from '../actions/'
 import { transformToRegion } from '../utilities/'
+import RequestFormModal from '../components/RequestFormModal'
 
 const drawerFabStyle = { zIndex: 101, right: Constants.statusBarHeight / 1.5 }
 
@@ -34,12 +35,12 @@ class HomeScreen extends PureComponent {
     if (keys.length) {
       initialRegion = props.mapRegion
     }
-    this.state = { initialRegion }
+    this.state = { initialRegion, modalVisible: false }
   }
 
   componentDidMount() {
     if (!this.state.initialRegion) {
-      this._getInitialDeviceLocation()
+      this.getInitialDeviceLocation()
         .then((initialRegion) => {
           this.setState({
             initialRegion,
@@ -50,7 +51,7 @@ class HomeScreen extends PureComponent {
     }
   }
 
-  _getInitialDeviceLocation = async () => {
+  getInitialDeviceLocation = async () => {
     // confirm app is granted permissions to check devlice location
     const permissionIsGranted = await this._checkLocationPermissions()
     if (!permissionIsGranted) return null
@@ -77,6 +78,25 @@ class HomeScreen extends PureComponent {
     return granted
   }
 
+  toggleModal = (modalVisible, request) => {
+    this.setState({ modalVisible })
+    this.modalReq = request
+    this.enableReqForm = modalVisible
+  }
+
+  renderReqForm = () => {
+    if (!this.enableReqForm) return null
+    return (
+      <RequestFormModal
+        visible={this.state.modalVisible}
+        userID={this.props.userID}
+        toggleModal={this.toggleModal}
+        request={this.modalReq}
+        navigation={this.props.navigation}
+      />
+    )
+  }
+
   render() {
     const { navigation, userID, requestsNearby } = this.props
     const { initialRegion } = this.state
@@ -98,8 +118,11 @@ class HomeScreen extends PureComponent {
             userID={userID}
             initialRegion={initialRegion}
             markers={requestsNearby}
+            toggleModal={this.toggleModal}
           />
         </View>
+
+        {this.renderReqForm()}
       </Container>
     )
   }

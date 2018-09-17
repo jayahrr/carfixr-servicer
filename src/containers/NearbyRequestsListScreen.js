@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import PropTypes from 'prop-types'
 import { withNavigation } from 'react-navigation'
 import { Header, Left, Button, Icon, Right, Title, Body, Container, Content } from 'native-base'
 import { NearbyRequestsList } from '../components/NearbyRequestsList'
+import RequestFormModal from '../components/RequestFormModal'
 
 const header = navigation => (
   <Header>
@@ -25,12 +27,45 @@ const header = navigation => (
 class NearbyRequestsListScreen extends Component {
   static navigationOptions = ({ navigation }) => ({ header: header(navigation) })
 
+  static propTypes = {
+    navigation: PropTypes.objectOf(PropTypes.any).isRequired,
+    userID: PropTypes.string.isRequired,
+  }
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      modalVisible: false,
+    }
+  }
+
+  toggleModal = (modalVisible, request) => {
+    this.setState({ modalVisible })
+    this.modalReq = request
+    this.enableReqForm = modalVisible
+  }
+
+  renderReqForm = () => {
+    if (!this.enableReqForm) return null
+    return (
+      <RequestFormModal
+        visible={this.state.modalVisible}
+        userID={this.props.userID}
+        toggleModal={this.toggleModal}
+        request={this.modalReq}
+        navigation={this.props.navigation}
+      />
+    )
+  }
+
   render() {
     return (
       <Container>
         <Content padder>
-          <NearbyRequestsList {...this.props} />
+          <NearbyRequestsList {...this.props} toggleModal={this.toggleModal} />
         </Content>
+
+        {this.renderReqForm()}
       </Container>
     )
   }
@@ -53,9 +88,4 @@ const mapStateToProps = (state) => {
   return { requests, userID }
 }
 
-const mapDispatchToProps = {}
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(withNavigation(NearbyRequestsListScreen))
+export default connect(mapStateToProps)(withNavigation(NearbyRequestsListScreen))

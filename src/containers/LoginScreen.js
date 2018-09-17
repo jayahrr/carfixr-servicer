@@ -88,7 +88,6 @@ class LoginScreen extends Component {
 
 const mapDispatchToProps = dispatch => ({
   setUserData: (userData) => {
-    console.log('setUserData userData: ', userData)
     dispatch({
       type: USER_DB_DATA,
       payload: userData,

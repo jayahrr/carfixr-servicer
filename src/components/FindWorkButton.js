@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Button, Icon, Card, CardItem, Text } from 'native-base'
-import { withNavigation } from 'react-navigation';
+import { withNavigation } from 'react-navigation'
 
 const FindWorkButton = ({ title, btnTitle, navigation }) => (
   <Card>
@@ -9,7 +9,7 @@ const FindWorkButton = ({ title, btnTitle, navigation }) => (
       <Text>{title}</Text>
     </CardItem>
     <CardItem footer>
-      <Button iconRight primary onPress={() => navigation.navigate({ routeName: 'Home' })}>
+      <Button iconRight primary onPress={() => navigation.navigate({ routeName: 'HomeMap' })}>
         <Text>{btnTitle}</Text>
         <Icon name="ios-search" />
       </Button>

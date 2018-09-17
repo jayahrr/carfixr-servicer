@@ -17,12 +17,7 @@ const styles = StyleSheet.create({
 export default class WorkList extends Component {
   static propTypes = {
     myWork: PropTypes.arrayOf(PropTypes.object).isRequired,
-    navigation: PropTypes.objectOf(PropTypes.any).isRequired,
-    userID: PropTypes.string.isRequired,
-  }
-
-  _onView = (request) => {
-    this.props.navigation.navigate('RequestForm', { request, userID: this.props.userID })
+    toggleModal: PropTypes.func.isRequired,
   }
 
   _renderContent = request => (
@@ -30,7 +25,7 @@ export default class WorkList extends Component {
       <Text>{request.content.number}</Text>
       <Text>{request.content.state}</Text>
       <AssignRequestButton requestID={request.content._id} action="drop" goBack={false} />
-      <Button small onPress={() => this._onView(request.content)}>
+      <Button small onPress={() => this.props.toggleModal(true, request.content)}>
         <Text>View</Text>
       </Button>
     </View>

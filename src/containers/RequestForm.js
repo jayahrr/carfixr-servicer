@@ -1,38 +1,118 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { Container, Content, Card, CardItem, Text, Body } from 'native-base'
-import AssignRequestButton from '../components/AssignRequestButton'
+import {
+  Container,
+  Content,
+  Card,
+  CardItem,
+  Text,
+  Body,
+  Header,
+  Left,
+  Right,
+  Button,
+  Icon,
+  Title,
+  View,
+  H1,
+} from 'native-base'
+import * as Theme from '../config/theme'
+import RequestFormActions from '../components/RequestFormActions'
 
-export const RequestForm = ({
-  request, userID, action, isMyWork,
+const styles = {
+  subHeader: { color: Theme.colors.text.muted, marginBottom: 5, fontSize: 12 },
+  flexColumn: { flexDirection: 'column' },
+  showSchedule: state => ({ display: state !== 'New' ? null : 'none' }),
+}
+
+const RequestForm = ({
+  request, userID, isMyWork, navigation,
 }) => {
   const {
-    number, state, _id, description,
+    number, state, _id, description, requester, service_date,
   } = request
   const shortDescription = request.short_description
+  const serviceDate = new Date(service_date)
+  let plannedStart = request.planned_start
+  if (plannedStart) plannedStart = new Date(plannedStart)
 
   return (
     <Container>
+      <Header>
+        <Left>
+          <Button onPress={() => navigation.goBack()} transparent>
+            <Icon name="arrow-back" />
+          </Button>
+        </Left>
+        <Body>
+          <Title>Request Form</Title>
+        </Body>
+        <Right>
+          <Button onPress={() => navigation.toggleDrawer()} transparent>
+            <Icon name="ios-menu" />
+          </Button>
+        </Right>
+      </Header>
+
       <Content padder>
         <Card>
           <CardItem header bordered>
-            <Text>{shortDescription}</Text>
+            <View style={styles.flexColumn}>
+              <H1>
+                {shortDescription} for {requester.name}
+              </H1>
+              <Text style={styles.subHeader}>
+                {number} :: {state}
+              </Text>
+            </View>
           </CardItem>
-          <CardItem bordered>
+          <CardItem>
             <Body>
-              <Text>{number}</Text>
-              <Text>{state}</Text>
-              <Text>{description}</Text>
-              {/* <Text>{`For ${this.request.requester.name}`}</Text> */}
+              <Text style={styles.subHeader}>To be completed by</Text>
+              <Text>
+                {serviceDate
+                  ? serviceDate.toLocaleString('en-US', {
+                      hour: 'numeric',
+                      minute: 'numeric',
+                      weekday: 'long',
+                      month: 'short',
+                      day: 'numeric',
+                    })
+                  : 'Now!'}
+              </Text>
             </Body>
           </CardItem>
-          <CardItem footer bordered>
-            <AssignRequestButton
+          <CardItem>
+            <Body>
+              <Text style={styles.subHeader}>{requester.first_name} says</Text>
+              <Text>{description || 'Thanks!'}</Text>
+            </Body>
+          </CardItem>
+          <CardItem style={styles.showSchedule(state)}>
+            <Body>
+              <Text style={styles.subHeader}>Scheduled for</Text>
+              <Text>
+                {plannedStart
+                  ? plannedStart.toLocaleString('en-US', {
+                      hour: 'numeric',
+                      minute: 'numeric',
+                      weekday: 'long',
+                      month: 'short',
+                      day: 'numeric',
+                    })
+                  : 'Not yet scheduled.'}
+              </Text>
+            </Body>
+          </CardItem>
+          <CardItem>
+            <RequestFormActions
+              clientName={requester.first_name}
+              reqState={state}
               requestID={_id}
               userID={userID}
-              action={action}
               goBack={isMyWork}
+              reqAppt={plannedStart}
             />
           </CardItem>
         </Card>
@@ -44,8 +124,8 @@ export const RequestForm = ({
 RequestForm.propTypes = {
   request: PropTypes.objectOf(PropTypes.any).isRequired,
   userID: PropTypes.string.isRequired,
-  action: PropTypes.string.isRequired,
   isMyWork: PropTypes.bool.isRequired,
+  navigation: PropTypes.objectOf(PropTypes.any).isRequired,
 }
 
 const mapStateToProps = (state, props) => {

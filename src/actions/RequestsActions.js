@@ -83,7 +83,7 @@ const fetchMyWork = servicerID => (dispatch) => {
     .then(response => response.json())
     .then((json) => {
       const myWork = []
-      const reqs = json.requests
+      const reqs = json
       if (reqs.length) {
         reqs.forEach((req) => {
           myWork.push({
@@ -99,10 +99,10 @@ const fetchMyWork = servicerID => (dispatch) => {
     })
 }
 
-const servicerUpdatedRequest = async (id, update) => {
+const servicerUpdatedRequest = async (requestID, update) => {
   let answer
   // generate REST URL
-  const URL = `${URI}/api/v1/requests/${id}`
+  const URL = `${URI}/api/v1/requests/${requestID}`
 
   // generate config options
   const fetchConfig = {

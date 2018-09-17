@@ -4,7 +4,7 @@ const DEVICE_HEIGHT = Dimensions.get('window').height
 const DEVICE_WIDTH = Dimensions.get('window').width
 
 const colors = {
-  default: '#FFF',
+  default: '#FFFFFF',
   spot1: '#27408B',
   spot2: '#616FC1',
   spot3: '#EDEEFF',
@@ -14,6 +14,7 @@ const colors = {
     primary: '#DDD',
     link: '#616FC1',
     white: '#FFF',
+    muted: '#546E7A', // BLUE GRAY
   },
   shadows: '#000',
 }

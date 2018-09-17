@@ -42,6 +42,7 @@ class MapViewScreen extends Component {
     initialRegion: PropTypes.objectOf(PropTypes.any),
     markers: PropTypes.arrayOf(PropTypes.object),
     setAddressFromRegion: PropTypes.func.isRequired,
+    toggleModal: PropTypes.func.isRequired,
   }
 
   static defaultProps = {
@@ -92,7 +93,7 @@ class MapViewScreen extends Component {
         }}
         stopPropagation
       >
-        <MapView.Callout tooltip onPress={() => this._openForm(marker)}>
+        <MapView.Callout tooltip onPress={() => this.props.toggleModal(true, marker)}>
           <View style={[styles.bubble]}>
             <Text>{marker.short_description}</Text>
             <Text>{marker.number}</Text>
