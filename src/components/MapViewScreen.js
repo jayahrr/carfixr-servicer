@@ -42,7 +42,7 @@ class MapViewScreen extends Component {
     initialRegion: PropTypes.objectOf(PropTypes.any),
     markers: PropTypes.arrayOf(PropTypes.object),
     setAddressFromRegion: PropTypes.func.isRequired,
-    toggleModal: PropTypes.func.isRequired,
+    handleSelectRequest: PropTypes.func.isRequired,
   }
 
   static defaultProps = {
@@ -81,7 +81,7 @@ class MapViewScreen extends Component {
     this.props.navigation.navigate('RequestForm', { request, userID: this.props.userID })
   }
 
-  _listMarkers = (markers) => {
+  _listMarkers = (markers, handleSelectRequest) => {
     if (!markers) return null
     return markers.map(marker => (
       <MapView.Marker
@@ -93,7 +93,7 @@ class MapViewScreen extends Component {
         }}
         stopPropagation
       >
-        <MapView.Callout tooltip onPress={() => this.props.toggleModal(true, marker)}>
+        <MapView.Callout tooltip onPress={() => handleSelectRequest(marker._id)}>
           <View style={[styles.bubble]}>
             <Text>{marker.short_description}</Text>
             <Text>{marker.number}</Text>
@@ -104,7 +104,7 @@ class MapViewScreen extends Component {
   }
 
   render() {
-    const { initialRegion, markers } = this.props
+    const { initialRegion, markers, handleSelectRequest } = this.props
     if (!initialRegion || initialRegion.latitude === undefined) return null
     return (
       <View style={StyleSheet.absoluteFill}>
@@ -118,15 +118,14 @@ class MapViewScreen extends Component {
           followsUserLocation
           initialRegion={initialRegion}
           onPress={Keyboard.dismiss}
-          onRegionChangeComplete={this._setRegion}
+          onRegionChangeComplete={region => this._setRegion(region)}
           provider={MapView.PROVIDER_GOOGLE}
-          showsBuildings={false}
           showsIndoors={false}
           showsMyLocationButton
           showsUserLocation
           style={StyleSheet.absoluteFillObject}
         >
-          {this._listMarkers(markers)}
+          {this._listMarkers(markers, handleSelectRequest)}
         </MapView>
       </View>
     )

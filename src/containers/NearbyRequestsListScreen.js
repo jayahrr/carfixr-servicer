@@ -3,8 +3,9 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { withNavigation } from 'react-navigation'
 import { Header, Left, Button, Icon, Right, Title, Body, Container, Content } from 'native-base'
+
+import { selectRequest } from '../actions/'
 import { NearbyRequestsList } from '../components/NearbyRequestsList'
-import RequestFormModal from '../components/RequestFormModal'
 
 const header = navigation => (
   <Header>
@@ -30,42 +31,21 @@ class NearbyRequestsListScreen extends Component {
   static propTypes = {
     navigation: PropTypes.objectOf(PropTypes.any).isRequired,
     userID: PropTypes.string.isRequired,
+    selectRequest: PropTypes.func.isRequired,
   }
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      modalVisible: false,
-    }
-  }
-
-  toggleModal = (modalVisible, request) => {
-    this.setState({ modalVisible })
-    this.modalReq = request
-    this.enableReqForm = modalVisible
-  }
-
-  renderReqForm = () => {
-    if (!this.enableReqForm) return null
-    return (
-      <RequestFormModal
-        visible={this.state.modalVisible}
-        userID={this.props.userID}
-        toggleModal={this.toggleModal}
-        request={this.modalReq}
-        navigation={this.props.navigation}
-      />
-    )
+  handleSelectRequest = (reqID) => {
+    const { navigation, selectRequest } = this.props
+    selectRequest(reqID)
+    navigation.navigate('RequestForm')
   }
 
   render() {
     return (
       <Container>
         <Content padder>
-          <NearbyRequestsList {...this.props} toggleModal={this.toggleModal} />
+          <NearbyRequestsList {...this.props} handleSelectRequest={this.handleSelectRequest} />
         </Content>
-
-        {this.renderReqForm()}
       </Container>
     )
   }
@@ -74,7 +54,7 @@ class NearbyRequestsListScreen extends Component {
 const mapStateToProps = (state) => {
   const userID = state.user.db_data._id
   const requests = []
-
+  // reorganize the collection to work properly with the Accordian component
   if (state.requests.items.length) {
     state.requests.items.forEach((item) => {
       const request = {
@@ -84,8 +64,10 @@ const mapStateToProps = (state) => {
       requests.push(request)
     })
   }
-
   return { requests, userID }
 }
 
-export default connect(mapStateToProps)(withNavigation(NearbyRequestsListScreen))
+export default connect(
+  mapStateToProps,
+  { selectRequest },
+)(withNavigation(NearbyRequestsListScreen))

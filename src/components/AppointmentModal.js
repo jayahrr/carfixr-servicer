@@ -56,9 +56,10 @@ class AppointmentModal extends Component {
   }
 
   setAppointment = () => {
-    console.log('msg: ', this.state.message)
-    this.props.updateReq({ planned_start: this.state.chosenDate.toISOString(), state: 'Scheduled' })
-    this.props.closeModal()
+    const { updateReq, closeModal } = this.props
+    const { chosenDate } = this.state
+    updateReq({ planned_start: chosenDate.toISOString(), state: 'Scheduled' })
+    closeModal()
   }
 
   showDatePicker = () => {
@@ -99,12 +100,14 @@ class AppointmentModal extends Component {
   }
 
   render() {
+    const { visible, clientName, closeModal } = this.props
+    const { modalVisible, chosenDate, message } = this.state
     return (
       <View>
         <Modal
           animationType="slide"
           transparent={false}
-          visible={this.props.visible || this.state.modalVisible}
+          visible={visible || modalVisible}
           onRequestClose={() => {
             Alert.alert('Modal has been closed.')
           }}
@@ -114,24 +117,24 @@ class AppointmentModal extends Component {
 
             <View>
               <H2 style={styles.title}>
-                Set an appointment with {this.props.clientName} to complete this request.
+                Set an appointment with {clientName} to complete this request.
               </H2>
               <View style={styles.picker}>{this.showDatePicker()}</View>
               <Form>
                 <Item stackedLabel style={styles.inputItem}>
-                  <Label>Message {this.props.clientName}</Label>
+                  <Label>Message {clientName}</Label>
                   <Textarea
                     allowFontScaling
                     autoCapitalize="sentences"
                     autoCorrect
-                    editable={!!this.state.chosenDate}
+                    editable={!!chosenDate}
                     rowSpan={3}
                     bordered
-                    placeholder={this.state.message}
-                    defaultValue={this.state.message}
+                    placeholder={message}
+                    defaultValue={message}
                     style={styles.txtArea}
-                    onChangeText={(message) => {
-                      this.setState({ message })
+                    onChangeText={(msg) => {
+                      this.setState({ message: msg })
                     }}
                   />
                 </Item>
@@ -139,13 +142,13 @@ class AppointmentModal extends Component {
             </View>
             <View style={styles.actions}>
               <Button
-                success={this.state.chosenDate !== null}
-                disabled={this.state.chosenDate === null}
+                success={chosenDate !== null}
+                disabled={chosenDate === null}
                 onPress={this.setAppointment}
               >
                 <Text>Save</Text>
               </Button>
-              <Button light onPress={this.props.closeModal}>
+              <Button light onPress={closeModal}>
                 <Text>Cancel</Text>
               </Button>
             </View>

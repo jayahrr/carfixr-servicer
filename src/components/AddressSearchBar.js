@@ -58,7 +58,7 @@ class AddressSearchBar extends Component {
   _getRegionFromSearchAddress = async () => {
     const coordsArr = await Location.geocodeAsync(this.state.searchValue)
     if (coordsArr.length) {
-      this.setMapRegion({ coords: coordsArr[0] }, true, true)
+      this.setMapRegion({ coords: coordsArr[0] }, true, true, true)
     }
   }
 

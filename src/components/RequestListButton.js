@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
 
 const RequestListButton = ({ navigation }) => {
   const _onPress = () => {
-    navigation.navigate({ routeName: 'RequestList' })
+    navigation.navigate('RequestList')
   }
 
   return (

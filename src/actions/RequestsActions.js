@@ -1,26 +1,31 @@
+import Pusher from 'pusher-js/react-native'
+
 import URI from '../config/db'
-import { REQS_MYWORK, REQS_RECEIVE } from '../actions/types'
+import { REQS_MYWORK, REQS_RECEIVE, REQS_SELECT, REQS_SELECT_UPDATED } from '../actions/types'
 
 /*
  * actions
  */
-const setServicesNearby = (dispatch, payload = []) =>
-  dispatch({
-    type: REQS_RECEIVE,
-    payload,
-  })
+const _setServicesNearby = (payload = []) => ({
+  type: REQS_RECEIVE,
+  payload,
+})
 
-const setMyWork = (dispatch, payload = []) =>
-  dispatch({
-    type: REQS_MYWORK,
-    payload,
-  })
+const _setMyWork = (payload = []) => ({
+  type: REQS_MYWORK,
+  payload,
+})
+
+export const selectRequest = reqID => ({
+  type: REQS_SELECT,
+  payload: reqID,
+})
 
 /*
  * action creators
  */
 
-const fetchRequestsNearby = (region, radius) => (dispatch) => {
+export const fetchRequestsNearby = (region, radius) => async (dispatch) => {
   // generate REST URL and config options
   const URL = `${URI}/api/v1/requests/nearby/${region.latitude}/${region.longitude}/${radius}`
   const fetchConfig = {
@@ -31,43 +36,40 @@ const fetchRequestsNearby = (region, radius) => (dispatch) => {
     },
   }
 
-  return fetch(URL, fetchConfig)
-    .then((response) => {
-      if (!response.ok) throw new Error('API response was not OK')
-      return response.json()
-    })
-    .then((json) => {
-      setServicesNearby(dispatch, json)
-      return json
-    })
-    .catch((e) => {
-      throw new Error(e)
-    })
+  try {
+    const response = await fetch(URL, fetchConfig)
+    if (!response.ok) throw new Error('API response was not OK')
+    const json = await response.json()
+    dispatch(_setServicesNearby(json))
+    return json
+  } catch (error) {
+    throw new Error(error)
+  }
 }
 
-const updateService = (id, update) => (dispatch) => {
+export const updateService = (id, userID, update) => async (dispatch) => {
   // generate REST URL and config options
   const URL = `${URI}/api/v1/requests/${id}`
+  const body = { ...update, sys_updated_by: userID }
   const fetchConfig = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
     },
-    body: JSON.stringify(update),
+    body: JSON.stringify(body),
   }
 
-  return fetch(URL, fetchConfig)
-    .then((response) => {
-      if (!response.ok) throw new Error('API response was not OK')
-      return response.json()
-    })
-    .then(json => setServicesNearby(dispatch, json))
-    .catch((e) => {
-      throw new Error(e)
-    })
+  try {
+    const response = await fetch(URL, fetchConfig)
+    if (!response.ok) throw new Error('API response was not OK')
+    const json = await response.json()
+    return dispatch(_setServicesNearby(json))
+  } catch (e) {
+    throw new Error(e)
+  }
 }
 
-const fetchMyWork = servicerID => (dispatch) => {
+export const fetchMyWork = servicerID => async (dispatch) => {
   // generate REST URL and config options
   const URL = `${URI}/api/v1/servicers/work/`
   const fetchConfig = {
@@ -79,30 +81,30 @@ const fetchMyWork = servicerID => (dispatch) => {
     },
   }
 
-  return fetch(URL, fetchConfig)
-    .then(response => response.json())
-    .then((json) => {
-      const myWork = []
-      const reqs = json
-      if (reqs.length) {
-        reqs.forEach((req) => {
-          myWork.push({
-            title: req.short_description,
-            content: req,
-          })
+  try {
+    const response = await fetch(URL, fetchConfig)
+    const json = await response.json()
+    const myWork = []
+    const reqs = json
+    if (reqs.length) {
+      reqs.forEach((req) => {
+        myWork.push({
+          title: req.short_description,
+          content: req,
         })
-      }
-      return setMyWork(dispatch, myWork)
-    })
-    .catch((e) => {
-      throw new Error(e)
-    })
+      })
+    }
+    return dispatch(_setMyWork(myWork))
+  } catch (e) {
+    throw new Error(e)
+  }
 }
 
-const servicerUpdatedRequest = async (requestID, update) => {
+export const servicerUpdatedRequest = async (requestID, userID, update) => {
   let answer
   // generate REST URL
   const URL = `${URI}/api/v1/requests/${requestID}`
+  const body = { ...update, sys_updated_by: userID }
 
   // generate config options
   const fetchConfig = {
@@ -110,7 +112,7 @@ const servicerUpdatedRequest = async (requestID, update) => {
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
     },
-    body: JSON.stringify(update),
+    body: JSON.stringify(body),
   }
 
   try {
@@ -124,4 +126,22 @@ const servicerUpdatedRequest = async (requestID, update) => {
   return answer
 }
 
-export { servicerUpdatedRequest, fetchMyWork, fetchRequestsNearby, updateService }
+export const receiveReqUpdate = (reqID, userID, renderUpdateToast) => (dispatch) => {
+  const socket = new Pusher('cb51a4975819a45202cf', {
+    cluster: 'us2',
+    forceTLS: true,
+  })
+
+  const channel = socket.subscribe('Requests')
+  channel.bind('updated', (data) => {
+    const id = data.id || data._id
+    const updater = data.sys_updated_by
+    if (id === reqID.toString() && updater !== userID.toString()) {
+      dispatch({
+        type: REQS_SELECT_UPDATED,
+        payload: true,
+      })
+      renderUpdateToast(true)
+    }
+  })
+}

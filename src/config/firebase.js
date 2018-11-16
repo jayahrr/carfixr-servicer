@@ -1,10 +1,10 @@
 const fbConfig = {
-  apiKey: 'AIzaSyA6a0Z-ze86Fz7EZzHo4B_6QfEADXTnQzE',
-  authDomain: 'carfixr-01.firebaseapp.com',
-  databaseURL: 'https://carfixr-01.firebaseio.com',
-  projectId: 'carfixr-01',
-  storageBucket: 'carfixr-01.appspot.com',
-  messagingSenderId: '845350539727',
+  apiKey: 'AIzaSyBMAD8CBV0Y1x2ITyKvnUN2hN8Elol_oAw',
+  authDomain: 'getmech-0001.firebaseapp.com',
+  databaseURL: 'https://getmech-0001.firebaseio.com',
+  projectId: 'getmech-0001',
+  storageBucket: 'getmech-0001.appspot.com',
+  messagingSenderId: '534765564989',
 }
 
 export { fbConfig }

@@ -18,6 +18,8 @@ export const MAP_USR_ADDR = 'map_usr_addr'
 
 export const REQS_RECEIVE = 'reqs_receive'
 export const REQS_MYWORK = 'reqs_mywork'
+export const REQS_SELECT = 'reqs_select'
+export const REQS_SELECT_UPDATED = 'reqs_select_updated'
 
 export const CATALOG_FETCH = 'catalog_fetch'
 export const CATALOG_FETCH_SUCCESS = 'catalog_fetch_success'

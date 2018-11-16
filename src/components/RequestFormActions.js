@@ -21,6 +21,7 @@ const DropAlert = {
 
 const styles = {
   dropBtnStyle: dropable => ({ display: dropable ? null : 'none', marginTop: 10 }),
+  mainBtnStyle: scheduled => ({ display: !scheduled ? null : 'none' }),
   apptActionsStyle: scheduled => ({
     display: scheduled ? null : 'none',
     flexDirection: 'row',
@@ -40,16 +41,40 @@ class RequestFormActions extends Component {
     userID: PropTypes.string.isRequired,
     fetchMyWork: PropTypes.func.isRequired,
     fetchRequestsNearby: PropTypes.func.isRequired,
+    fetchRequest: PropTypes.func.isRequired,
   }
 
   constructor(props) {
     super(props)
-    this.fetchMyWork = this.props.fetchMyWork.bind(this)
     this.userID = props.userID
     this.requestID = props.requestID
     this.state = {
       modalVisible: false,
     }
+  }
+
+  _onAccept = async (update) => {
+    const {
+      mapRegion,
+      requestID,
+      userID,
+      fetchMyWork,
+      fetchRequestsNearby,
+      fetchRequest,
+    } = this.props
+    try {
+      const wasUpdated = await servicerUpdatedRequest(requestID, userID, update)
+      if (!wasUpdated) return null
+      await fetchMyWork(userID)
+      await fetchRequestsNearby(mapRegion, 20000)
+      await fetchRequest()
+    } catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  _setDate = (newDate) => {
+    this._onAccept({ planned_start: newDate.toISOString(), state: 'Scheduled' })
   }
 
   closeModal = () => {
@@ -80,22 +105,6 @@ class RequestFormActions extends Component {
     if (this.isCloseable) {
       return this._onAccept({ state: 'Client Review', actual_end: new Date() })
     }
-    return console.log('No action available')
-  }
-
-  _onAccept = async (update) => {
-    try {
-      const wasUpdated = await servicerUpdatedRequest(this.requestID, update)
-      if (!wasUpdated) return null
-      this.fetchMyWork(this.userID)
-      return this.props.fetchRequestsNearby(this.props.mapRegion, 20000)
-    } catch (error) {
-      throw new Error(error)
-    }
-  }
-
-  _setDate = (newDate) => {
-    this._onAccept({ planned_start: newDate.toISOString(), state: 'Scheduled' })
   }
 
   render() {
@@ -110,6 +119,18 @@ class RequestFormActions extends Component {
 
     return (
       <Body>
+        <View style={styles.apptActionsStyle(this.isScheduled)}>
+          <Button
+            primary
+            onPress={() => this._onAccept({ state: 'Work in Progress', actual_start: new Date() })}
+          >
+            <Text>Begin work</Text>
+          </Button>
+          <Button danger onPress={() => this._onAccept({ state: 'Assigned', planned_start: null })}>
+            <Text>Cancel Appointment</Text>
+          </Button>
+        </View>
+
         <Button
           block
           disabled={this.isScheduled || this.isInReview || this.isClosed}
@@ -117,6 +138,7 @@ class RequestFormActions extends Component {
           primary={this.isNew}
           success={this.isCloseable}
           onPress={this.btnOnPress}
+          style={styles.mainBtnStyle(this.isScheduled)}
         >
           <Text>{this.btnTitle(reqState)}</Text>
         </Button>
@@ -137,18 +159,6 @@ class RequestFormActions extends Component {
         >
           <Text>Drop this request</Text>
         </Button>
-
-        <View style={styles.apptActionsStyle(this.isScheduled)}>
-          <Button
-            primary
-            onPress={() => this._onAccept({ state: 'Work in Progress', actual_start: new Date() })}
-          >
-            <Text>Begin work</Text>
-          </Button>
-          <Button danger>
-            <Text>Cancel Appointment</Text>
-          </Button>
-        </View>
 
         <AppointmentModal
           clientName={clientName}

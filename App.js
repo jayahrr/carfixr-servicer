@@ -1,8 +1,10 @@
 import React from 'react'
 import { StyleSheet, View, ActivityIndicator } from 'react-native'
+import { Root } from 'native-base'
 import { Provider } from 'react-redux'
 import firebase from 'firebase'
 import Pusher from 'pusher-js/react-native'
+
 import { store, fbConfig, colors } from './src/config/'
 import AppNavigation from './src/navigators/AppNavigation'
 import { USER_LOGIN_STILL, USER_DB_DATA, REQS_RECEIVE, REQS_MYWORK } from './src/actions/types'
@@ -55,26 +57,26 @@ class App extends React.Component {
         })
       }
     })
-    this.pusher = new Pusher('cb51a4975819a45202cf', {
-      cluster: 'us2',
-      forceTLS: true,
-    })
-    this.channel = this.pusher.subscribe('Requests')
-    this.channel.bind('inserted', (data) => {
-      console.log('data: ', data)
-      this._addItemToStore(data)
-    })
-    this.channel.bind('updated', (data) => {
-      console.log('data: ', data)
-    })
-    this.channel.bind('deleted', data => this._removeItemFromStore(data))
+    // this.pusher = new Pusher('cb51a4975819a45202cf', {
+    //   cluster: 'us2',
+    //   forceTLS: true,
+    // })
+    // this.channel = this.pusher.subscribe('Requests')
+    // this.channel.bind('inserted', (data) => {
+    //   console.log('data from App.js: ', data)
+    //   this._addItemToStore(data)
+    // })
+    // this.channel.bind('updated', (data) => {
+    //   console.log('data from App.js: ', data)
+    // })
+    // this.channel.bind('deleted', data => this._removeItemFromStore(data))
   }
 
   _addItemToStore = (data) => {
     let payload = []
     const type = REQS_RECEIVE
     const state = store.getState()
-    const reqsOld = store.getState().requests.items
+    const reqsOld = state.requests.items
     const alreadyExists = reqsOld.find(req => req._id === data.id)
     console.log('alreadyExists: ', alreadyExists)
 
@@ -126,9 +128,11 @@ class App extends React.Component {
       )
     }
     return (
-      <Provider store={store}>
-        <AppNavigation screenProps={{ isLoggedIn: this.state.isLoggedIn }} />
-      </Provider>
+      <Root>
+        <Provider store={store}>
+          <AppNavigation screenProps={{ isLoggedIn: this.state.isLoggedIn }} />
+        </Provider>
+      </Root>
     )
   }
 }

@@ -17,26 +17,27 @@ const styles = StyleSheet.create({
 export default class WorkList extends Component {
   static propTypes = {
     myWork: PropTypes.arrayOf(PropTypes.object).isRequired,
-    toggleModal: PropTypes.func.isRequired,
+    handleSelectRequest: PropTypes.func.isRequired,
   }
 
-  _renderContent = request => (
+  renderItem = (request, handleSelectRequest) => (
     <View style={styles.contentStyle}>
       <Text>{request.content.number}</Text>
       <Text>{request.content.state}</Text>
       <AssignRequestButton requestID={request.content._id} action="drop" goBack={false} />
-      <Button small onPress={() => this.props.toggleModal(true, request.content)}>
+      <Button small onPress={() => handleSelectRequest(request.content._id)}>
         <Text>View</Text>
       </Button>
     </View>
   )
 
   render() {
+    const { myWork, handleSelectRequest } = this.props
     return (
       <Accordion
-        dataArray={this.props.myWork}
+        dataArray={myWork}
         headerStyle={{ backgroundColor: Theme.colors.spot4 }}
-        renderContent={this._renderContent}
+        renderContent={request => this.renderItem(request, handleSelectRequest)}
       />
     )
   }

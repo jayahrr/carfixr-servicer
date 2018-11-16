@@ -4,11 +4,11 @@ import { connect } from 'react-redux'
 import { StyleSheet } from 'react-native'
 import { Constants, Location, Permissions } from 'expo'
 import { Container, View, Fab, Icon } from 'native-base'
+
 import MapViewScreen from '../components/MapViewScreen'
 import * as Theme from '../config/theme'
-import { setRegion, fetchRequestsNearby } from '../actions/'
+import { setRegion, fetchRequestsNearby, selectRequest } from '../actions/'
 import { transformToRegion } from '../utilities/'
-import RequestFormModal from '../components/RequestFormModal'
 
 const drawerFabStyle = { zIndex: 101, right: Constants.statusBarHeight / 1.5 }
 
@@ -31,11 +31,12 @@ class HomeScreen extends PureComponent {
   constructor(props) {
     super(props)
     let initialRegion = null
-    const keys = Object.keys(props.mapRegion)
-    if (keys.length) {
+    // check if map region is valid object with entries
+    if (Object.entries(props.mapRegion).length) {
+      // if valid object, set initial region to it
       initialRegion = props.mapRegion
     }
-    this.state = { initialRegion, modalVisible: false }
+    this.state = { initialRegion }
   }
 
   componentDidMount() {
@@ -48,6 +49,8 @@ class HomeScreen extends PureComponent {
           return initialRegion
         })
         .then(initialRegion => this.props.fetchRequestsNearby(initialRegion, 20000))
+    } else {
+      this.props.fetchRequestsNearby(this.state.initialRegion, 20000)
     }
   }
 
@@ -78,23 +81,10 @@ class HomeScreen extends PureComponent {
     return granted
   }
 
-  toggleModal = (modalVisible, request) => {
-    this.setState({ modalVisible })
-    this.modalReq = request
-    this.enableReqForm = modalVisible
-  }
-
-  renderReqForm = () => {
-    if (!this.enableReqForm) return null
-    return (
-      <RequestFormModal
-        visible={this.state.modalVisible}
-        userID={this.props.userID}
-        toggleModal={this.toggleModal}
-        request={this.modalReq}
-        navigation={this.props.navigation}
-      />
-    )
+  handleSelectRequest = (reqID) => {
+    const { navigation, selectRequest } = this.props
+    selectRequest(reqID)
+    navigation.navigate('RequestForm')
   }
 
   render() {
@@ -118,11 +108,9 @@ class HomeScreen extends PureComponent {
             userID={userID}
             initialRegion={initialRegion}
             markers={requestsNearby}
-            toggleModal={this.toggleModal}
+            handleSelectRequest={this.handleSelectRequest}
           />
         </View>
-
-        {this.renderReqForm()}
       </Container>
     )
   }
@@ -134,7 +122,13 @@ const mapStateToProps = state => ({
   requestsNearby: state.requests.items,
 })
 
+const mapDispatchToProps = {
+  setRegion,
+  fetchRequestsNearby,
+  selectRequest,
+}
+
 export default connect(
   mapStateToProps,
-  { setRegion, fetchRequestsNearby },
+  mapDispatchToProps,
 )(HomeScreen)

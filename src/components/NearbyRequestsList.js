@@ -18,28 +18,22 @@ const styles = StyleSheet.create({
 export class NearbyRequestsList extends Component {
   static propTypes = {
     requests: PropTypes.arrayOf(PropTypes.object).isRequired,
-    navigation: PropTypes.objectOf(PropTypes.any).isRequired,
-    userID: PropTypes.string.isRequired,
-    toggleModal: PropTypes.func.isRequired,
+    handleSelectRequest: PropTypes.func.isRequired,
   }
 
-  _onView = (request) => {
-    this.props.navigation.navigate('RequestForm', { request, userID: this.props.userID })
-  }
-
-  _renderContent = request => (
+  _renderContent = (request, handleSelectRequest) => (
     <View style={styles.contentStyle}>
       <Text>{request.content.number}</Text>
       <Text>{request.content.state}</Text>
       <AssignRequestButton requestID={request.content._id} action="pickup" />
-      <Button small onPress={() => this.props.toggleModal(true, request.content)}>
+      <Button small onPress={() => handleSelectRequest(request.content._id)}>
         <Text>View</Text>
       </Button>
     </View>
   )
 
   render() {
-    const { requests } = this.props
+    const { requests, handleSelectRequest } = this.props
     if (!requests.length) {
       return (
         <FindWorkButton
@@ -52,7 +46,7 @@ export class NearbyRequestsList extends Component {
       <Accordion
         dataArray={requests}
         headerStyle={{ backgroundColor: Theme.colors.spot2 }}
-        renderContent={this._renderContent}
+        renderContent={request => this._renderContent(request, handleSelectRequest)}
       />
     )
   }

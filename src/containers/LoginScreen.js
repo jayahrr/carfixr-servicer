@@ -17,6 +17,7 @@ import { ScrollView } from 'react-native'
 import { Footer, Logo } from '../components/common'
 import AuthForm from '../components/AuthForm'
 import { USER_DB_DATA } from '../actions/types'
+import { colors } from '../config/theme'
 
 const styles = {
   hdrStyle: {
@@ -53,7 +54,7 @@ class LoginScreen extends Component {
     return (
       <ScrollView keyboardShouldPersistTaps="handled">
         <Container>
-          <Header hasSegment span>
+          <Header style={{ backgroundColor: colors.spot1 }} hasSegment span>
             <Left />
             <Body style={styles.hdrStyle}>
               <Title>

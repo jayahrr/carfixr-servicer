@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import {
@@ -16,150 +16,230 @@ import {
   Title,
   View,
   H1,
+  Spinner,
+  Toast,
 } from 'native-base'
 import * as Theme from '../config/theme'
 import RequestFormActions from '../components/RequestFormActions'
+import { receiveReqUpdate } from '../actions/'
+import { findRequestData } from '../utilities'
 
 const styles = {
   subHeader: { color: Theme.colors.text.muted, marginBottom: 5, fontSize: 12 },
   flexColumn: { flexDirection: 'column' },
   showSchedule: state => ({ display: state !== 'New' ? null : 'none' }),
 }
+class RequestForm extends Component {
+  static propTypes = {
+    userID: PropTypes.string.isRequired,
+    reqID: PropTypes.string.isRequired,
+    navigation: PropTypes.objectOf(PropTypes.any).isRequired,
+    receiveReqUpdate: PropTypes.func.isRequired,
+  }
 
-const RequestForm = ({
-  request, userID, isMyWork, navigation,
-}) => {
-  const {
-    number, state, _id, description, requester, service_date,
-  } = request
-  const shortDescription = request.short_description
-  const serviceDate = new Date(service_date)
-  let plannedStart = request.planned_start
-  if (plannedStart) plannedStart = new Date(plannedStart)
+  state = {
+    fetching: false,
+    error: '',
+    reqShortDesc: '',
+    requesterName: '',
+    requesterFirstName: '',
+    reqNumber: '',
+    reqState: '',
+    reqDesc: '',
+    reqExists: false,
+  }
 
-  return (
-    <Container>
-      <Header>
-        <Left>
-          <Button onPress={() => navigation.goBack()} transparent>
-            <Icon name="arrow-back" />
-          </Button>
-        </Left>
-        <Body>
-          <Title>Request Form</Title>
-        </Body>
-        <Right>
-          <Button onPress={() => navigation.toggleDrawer()} transparent>
-            <Icon name="ios-menu" />
-          </Button>
-        </Right>
-      </Header>
+  componentWillMount = async () => {
+    const { request } = this.props
+    await this._fetchRequest(request)
+  }
 
-      <Content padder>
-        <Card>
-          <CardItem header bordered>
-            <View style={styles.flexColumn}>
-              <H1>
-                {shortDescription} for {requester.name}
-              </H1>
-              <Text style={styles.subHeader}>
-                {number} :: {state}
-              </Text>
-            </View>
-          </CardItem>
-          <CardItem>
-            <Body>
-              <Text style={styles.subHeader}>To be completed by</Text>
-              <Text>
-                {serviceDate
-                  ? serviceDate.toLocaleString('en-US', {
-                      hour: 'numeric',
-                      minute: 'numeric',
-                      weekday: 'long',
-                      month: 'short',
-                      day: 'numeric',
-                    })
-                  : 'Now!'}
-              </Text>
-            </Body>
-          </CardItem>
-          <CardItem>
-            <Body>
-              <Text style={styles.subHeader}>{requester.first_name} says</Text>
-              <Text>{description || 'Thanks!'}</Text>
-            </Body>
-          </CardItem>
-          <CardItem style={styles.showSchedule(state)}>
-            <Body>
-              <Text style={styles.subHeader}>Scheduled for</Text>
-              <Text>
-                {plannedStart
-                  ? plannedStart.toLocaleString('en-US', {
-                      hour: 'numeric',
-                      minute: 'numeric',
-                      weekday: 'long',
-                      month: 'short',
-                      day: 'numeric',
-                    })
-                  : 'Not yet scheduled.'}
-              </Text>
-            </Body>
-          </CardItem>
-          <CardItem>
-            <RequestFormActions
-              clientName={requester.first_name}
-              reqState={state}
-              requestID={_id}
-              userID={userID}
-              goBack={isMyWork}
-              reqAppt={plannedStart}
-            />
-          </CardItem>
-        </Card>
-      </Content>
-    </Container>
-  )
+  componentDidMount = () => {
+    const { reqID, userID, receiveReqUpdate } = this.props
+    receiveReqUpdate(reqID, userID, this.renderUpdateToast)
+  }
+
+  _fetchRequest = async (request) => {
+    const { userID, reqID } = this.props
+    let Request = request ? { ...request } : null
+    if (!Request && reqID) {
+      try {
+        await this.setState({ fetching: true })
+        Request = await findRequestData(reqID, userID)
+      } catch (error) {
+        this.setState({ error })
+      }
+    }
+    if (Request) {
+      return this.setState({
+        fetching: false,
+        reqExists: true,
+        reqShortDesc: Request.short_description,
+        requesterName: Request.requester.name,
+        requesterFirstName: Request.requester.first_name,
+        reqNumber: Request.number,
+        reqState: Request.state,
+        reqDesc: Request.description,
+        reqSrvcDt: new Date(Request.service_date),
+        reqPlndSt: new Date(Request.planned_start),
+        isMyWork: Request.servicer_id === userID,
+      })
+    }
+    return this.setState({ fetching: false })
+  }
+
+  renderUpdateToast = (selectedRequestUpdated) => {
+    if (selectedRequestUpdated) {
+      return Toast.show({
+        text: 'Updates availale!',
+        buttonText: 'Refresh',
+        type: 'success',
+        duration: 60000 * 5, // 5min
+        onClose: () => this._fetchRequest(),
+      })
+    }
+    return null
+  }
+
+  render() {
+    const { userID, reqID, navigation } = this.props
+    const {
+      fetching,
+      reqExists,
+      reqShortDesc,
+      requesterName,
+      reqNumber,
+      reqState,
+      reqDesc,
+      requesterFirstName,
+      reqSrvcDt,
+      reqPlndSt,
+      isMyWork,
+    } = this.state
+
+    return (
+      <Container>
+        <Header>
+          <Left>
+            <Button onPress={() => navigation.goBack()} transparent>
+              <Icon name="arrow-back" />
+            </Button>
+          </Left>
+          <Body>
+            <Title>Request Form</Title>
+          </Body>
+          <Right />
+        </Header>
+
+        <Content padder>
+          {!reqExists || fetching ? (
+            <Card transparent>
+              <Spinner />
+            </Card>
+          ) : (
+            <Card>
+              <CardItem header bordered>
+                <View style={styles.flexColumn}>
+                  <H1>
+                    {reqShortDesc} for {requesterName}
+                  </H1>
+                  <Text style={styles.subHeader}>
+                    {reqNumber} :: {reqState}
+                  </Text>
+                </View>
+              </CardItem>
+              <CardItem>
+                <Body>
+                  <Text style={styles.subHeader}>To be completed by</Text>
+                  <Text>
+                    {reqSrvcDt
+                      ? reqSrvcDt.toLocaleString('en-US', {
+                          hour: 'numeric',
+                          minute: 'numeric',
+                          weekday: 'long',
+                          month: 'short',
+                          day: 'numeric',
+                        })
+                      : 'Now!'}
+                  </Text>
+                </Body>
+              </CardItem>
+              <CardItem>
+                <Body>
+                  <Text style={styles.subHeader}>{requesterFirstName} says</Text>
+                  <Text>{reqDesc || 'Thanks!'}</Text>
+                </Body>
+              </CardItem>
+              <CardItem style={styles.showSchedule(reqState)}>
+                <Body>
+                  <Text style={styles.subHeader}>Scheduled for</Text>
+                  <Text>
+                    {reqPlndSt
+                      ? reqPlndSt.toLocaleString('en-US', {
+                          hour: 'numeric',
+                          minute: 'numeric',
+                          weekday: 'long',
+                          month: 'short',
+                          day: 'numeric',
+                        })
+                      : 'Not yet scheduled.'}
+                  </Text>
+                </Body>
+              </CardItem>
+              <CardItem>
+                <RequestFormActions
+                  clientName={requesterFirstName}
+                  reqState={reqState}
+                  requestID={reqID}
+                  userID={userID}
+                  goBack={isMyWork}
+                  reqAppt={reqPlndSt}
+                  fetchRequest={this._fetchRequest}
+                />
+              </CardItem>
+            </Card>
+          )}
+        </Content>
+      </Container>
+    )
+  }
 }
 
-RequestForm.propTypes = {
-  request: PropTypes.objectOf(PropTypes.any).isRequired,
-  userID: PropTypes.string.isRequired,
-  isMyWork: PropTypes.bool.isRequired,
-  navigation: PropTypes.objectOf(PropTypes.any).isRequired,
-}
-
-const mapStateToProps = (state, props) => {
-  // retrieve user's ID from navigation param
-  const userID = props.navigation.getParam('userID', '')
-  // retrieve item from a state collection
+const mapStateToProps = (state) => {
+  const { selectedRequestUpdated } = state.requests
+  const userID = state.user.db_data._id
+  const reqID = state.requests.selectedRequest
   let reqExists
-  let request = props.navigation.getParam('request', {})
-  const requestID = request._id
+  let request = null
   // attempt to find in the myWork collection first
   if (state.requests.myWork.length) {
-    reqExists = state.requests.myWork.find(req => req.content._id === requestID)
+    reqExists = state.requests.myWork.find(req => req.content._id === reqID)
     reqExists = reqExists ? reqExists.content : undefined
   }
   // if still not found, attempt to find in the items collection
   if (!reqExists) {
     if (state.requests.items.length) {
-      reqExists = state.requests.items.find(req => req._id === requestID)
+      reqExists = state.requests.items.find(req => req._id === reqID)
     }
   }
   // if item was found, create a new object to return
   if (reqExists) {
     request = { ...reqExists }
   }
-  // set whether to goBack or not and the action to perform
-  const isMyWork = request.servicer_id === userID
-  const action = isMyWork ? 'drop' : 'pickup'
 
   return {
     request,
-    isMyWork,
-    action,
     userID,
+    reqID,
+    selectedRequestUpdated,
   }
 }
 
-export default connect(mapStateToProps)(RequestForm)
+const mapDispatchToProps = {
+  receiveReqUpdate,
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(RequestForm)

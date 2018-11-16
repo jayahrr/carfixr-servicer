@@ -45,7 +45,8 @@ class AssignRequestButton extends Component {
   }
 
   _onAccept = async (id) => {
-    const wasUpdated = await servicerUpdatedRequest(id, this.alertObj.btnUpdate)
+    const { userID } = this.props
+    const wasUpdated = await servicerUpdatedRequest(id, userID, this.alertObj.btnUpdate)
     if (!wasUpdated) return null
 
     this.fetchMyWork(this.userID)
